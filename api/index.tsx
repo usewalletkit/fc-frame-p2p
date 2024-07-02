@@ -4,9 +4,8 @@ import { baseColors } from "../lib/contracts.js";
 import { createGlideClient, Chains, CurrenciesByChain } from "@paywithglide/glide-js";
 import { encodeFunctionData, hexToBigInt, toHex } from 'viem';
 import { init, fetchQuery } from "@airstack/node";
-import { contract } from "../lib/utils.js";
 import { base } from "thirdweb/chains";
-import { createThirdwebClient, readContract, waitForReceipt } from "thirdweb";
+import { createThirdwebClient, waitForReceipt } from "thirdweb";
 import axios from "axios";
 import dotenv from 'dotenv';
 
@@ -142,8 +141,8 @@ export const app = new Frog({
     'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
   },
   imageOptions: {
-    height: 1024,
-    width: 1024,
+    height: 600,
+    width: 600,
     fonts: 
     [
       {
@@ -358,17 +357,23 @@ app.transaction("/mintBatch", async (c) => {
 
 app.frame("/leaderBoard/:address", async (c) => {
   // const address = await fetchUser(transactionId);
-  const address = c.req.param("address");
+  const {address} = c.req.param();
   console.log(address);
-  const data = await readContract({
-    contract,
-    method: "function balanceOf(address owner) view returns (uint256)",
-    params: [address],
-  });
+
+  const data = await baseColors.read.balanceOf([address]);
+
+  // const data = await readContract({
+  //   contract,
+  //   method: {
+  //     name: "balanceOf",
+  //     params: [address],
+  //   },
+  // });
+
   console.log(address);
   const userBalance = data.toString();
   console.log(userBalance);
-  const leaderBoard = await fetchTopCollectors();
+  const leaderBoard = await fetchTopCollectors() ?? [];
   console.log(leaderBoard);
 
   return c.res({
