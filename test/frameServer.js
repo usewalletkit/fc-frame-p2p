@@ -28,7 +28,7 @@ const query = `query ResolveFarcasterProfileName($_eq: Address, $_eq1: SocialDap
 const fetchTopCollectors = async () => {
   const options = {
     method: "GET",
-    url: "https://api.simplehash.com/api/v0/nfts/top_collectors/base/0x7bc1c072742d8391817eb4eb2317f98dc72c61db?limit=10",
+    url: "https://api.simplehash.com/api/v0/nfts/top_collectors/base/0x7Bc1C072742D8391817EB4Eb2317F98dc72C61dB?limit=10",
     headers: {
       accept: "application/json",
       "X-API-KEY": process.env.SIMPLEHASHAPIKEY,
