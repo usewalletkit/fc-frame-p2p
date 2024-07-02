@@ -57,8 +57,22 @@ app.frame('/', async (c) => {
 
 app.transaction("/mint", async (c) => {
   const { address } = c;
-  const color = "#432889";
+
+  // Function to generate random color hex code
+  function getRandomColorHex() {
+    const getRandomValue = () => Math.floor(Math.random() * 256);
+    const toHex = (value: number) => value.toString(16).padStart(2, '0');
+    const r = getRandomValue();
+    const g = getRandomValue();
+    const b = getRandomValue();
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  }
+
+  const color = getRandomColorHex();
   const name = color.substring(1);
+
+  console.log(`Minting color: ${color}`);
+  console.log(`Minting name: ${name}`);
  
   const { unsignedTransaction } = await glideClient.createSession( {
     payerWalletAddress: address,
@@ -83,7 +97,7 @@ app.transaction("/mint", async (c) => {
  
   // Return the payment transaction to the user
   return c.send({
-    chainId: Chains.Base,
+    chainId: "eip155:8453",
     to: unsignedTransaction.to,
     data: unsignedTransaction.input,
     value: hexToBigInt(unsignedTransaction.value),
@@ -114,20 +128,39 @@ app.frame("/tx-status", async (c) => {
       image: (
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            fontSize: 64,
-            marginTop: "200px",
+            alignItems: 'center',
+            background: 'white',
+            backgroundSize: '100% 100%',
+            display: 'flex',
+            flexDirection: 'column',
+            flexWrap: 'nowrap',
+            height: '100%',
+            justifyContent: 'center',
+            textAlign: 'center',
+            width: '100%',
+            color: 'black',
+            fontSize: 60,
+            fontStyle: 'normal',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.4,
+            marginTop: 0,
+            padding: '0 120px',
+            whiteSpace: 'pre-wrap',
           }}
         >
-          Mint complete!
+          <div style={{ color: 'black', display: 'flex', fontSize: 60, flexDirection: 'column', marginBottom: 60 }}>
+            
+            <p style={{ justifyContent: 'center', textAlign: 'center', fontSize: 48, margin: '0'}}>Successfully Minted!</p>
+            
+          </div>
         </div>
       ),
       intents: [
+        <Button action="/">Buy again</Button>,
         <Button.Link
-          href={`https://explorer.zora.energy/tx/${session.sponsoredTransactionHash}`}
+          href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
         >
-          View on Zora
+          View on Basescan
         </Button.Link>,
       ],
     });
@@ -138,13 +171,31 @@ app.frame("/tx-status", async (c) => {
       image: (
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            fontSize: 44,
-            marginTop: "200px",
+            alignItems: 'center',
+            background: 'white',
+            backgroundSize: '100% 100%',
+            display: 'flex',
+            flexDirection: 'column',
+            flexWrap: 'nowrap',
+            height: '100%',
+            justifyContent: 'center',
+            textAlign: 'center',
+            width: '100%',
+            color: 'red',
+            fontSize: 60,
+            fontStyle: 'normal',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.4,
+            marginTop: 0,
+            padding: '0 120px',
+            whiteSpace: 'pre-wrap',
           }}
         >
-          Waiting for payment confirmation..
+          <div style={{ color: 'red', display: 'flex', fontSize: 60, flexDirection: 'column', marginBottom: 60 }}>
+            
+            <p style={{ justifyContent: 'center', textAlign: 'center', fontSize: 48, margin: '0'}}>Waiting for payment confirmation..</p>
+            
+          </div>
         </div>
       ),
  
@@ -157,115 +208,6 @@ app.frame("/tx-status", async (c) => {
   }
 });
 
-
-// app.frame("/tx-status", async (c) => {
-//   const { transactionId, buttonValue } = c;
- 
-//   // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
-//   const txHash = transactionId || buttonValue;
- 
-//   if (!txHash) {
-//     throw new Error("missing transaction hash");
-//   }
- 
-//   try {
-//     let session = await getSessionByPaymentTransaction(config, {
-//       chainId: chains.base.id,
-//       txHash,
-//     });
- 
-//     // Wait for the session to complete. It can take a few seconds
-//     session = await waitForSession(config, session.sessionId);
- 
-//     return c.res({
-//       image: (
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "center",
-//             fontSize: 64,
-//             marginTop: "200px",
-//           }}
-//         >
-//           Mint complete!
-//         </div>
-//       ),
-//       intents: [
-//         <Button.Link
-//           href={`https://explorer.zora.energy/tx/${session.sponsoredTransactionHash}`}
-//         >
-//           View on Zora
-//         </Button.Link>,
-//       ],
-//     });
-//   } catch (e) {
-//     // If the session is not found, it means the payment is still pending.
-//     // Let the user know that the payment is pending and show a button to refresh the status.
-//     return c.res({
-//       image: (
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "center",
-//             fontSize: 44,
-//             marginTop: "200px",
-//           }}
-//         >
-//           Waiting for payment confirmation..
-//         </div>
-//       ),
- 
-//       intents: [
-//         <Button value={txHash} action="/tx-status">
-//           Refresh
-//         </Button>,
-//       ],
-//     });
-//   }
-// });
-
-
-app.frame('/random-colors', async (c) => {
-  const color = "#432889"
-  // const color_data = await baseColors.read.getTokenAttributes([color]);
-
-  return c.res({
-    image: (
-      <div
-        style={{
-          alignItems: 'center',
-          background: color,
-          backgroundSize: '100% 100%',
-          display: 'flex',
-          flexDirection: 'column',
-          flexWrap: 'nowrap',
-          height: '100%',
-          justifyContent: 'center',
-          textAlign: 'center',
-          width: '100%',
-          color: 'white',
-          fontSize: 60,
-          fontStyle: 'normal',
-          letterSpacing: '-0.025em',
-          lineHeight: 1.4,
-          marginTop: 0,
-          padding: '0 120px',
-          whiteSpace: 'pre-wrap',
-        }}
-      >
-        <div style={{ color: 'white', display: 'flex', fontSize: 60, flexDirection: 'column', marginBottom: 60 }}>
-          
-          <p style={{ justifyContent: 'center', textAlign: 'center', fontSize: 32, margin: '0'}}>Successfully Minted!</p>
-          <p style={{ justifyContent: 'center', textAlign: 'center', fontSize: 42, margin: '0'}}>{color} </p>
-          
-        </div>
-      </div>
-    ),
-    intents: [
-      <Button action='/random-colors'>Buy</Button>,
-    ],
-  })
-})
 
 // Uncomment for local server testing
 devtools(app, { serveStatic });
