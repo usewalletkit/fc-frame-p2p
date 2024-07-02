@@ -235,13 +235,13 @@ app.frame("/tx-status", async (c) => {
     const receipt = await waitForReceipt({
       client,
       chain: base,
-      transactionHash: transactionId as `0x${string}`,
+      transactionHash: txHash as `0x${string}`,
     });
   
     const address = receipt.from;
     const decodedHexData = decodeHexData(receipt.logs[1].data);
     const hex = decodedHexData.data1;
-    
+
     return c.res({
       title: 'Mint Base Colors with $DEGEN',
       image: (
