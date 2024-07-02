@@ -38,7 +38,7 @@ const fetchTopCollectors = async () => {
     url: "https://api.simplehash.com/api/v0/nfts/top_collectors/base/0x7bc1c072742d8391817eb4eb2317f98dc72c61db?limit=10",
     headers: {
       accept: "application/json",
-      "X-API-KEY": process.env.SIMPLEHASHAPIKEY,
+      "X-API-KEY": process.env.SIMPLEHASH_API_KEY,
     },
   };
 
