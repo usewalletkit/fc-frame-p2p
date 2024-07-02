@@ -1,0 +1,21 @@
+{
+  "name": "basecolors",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "frog vercel-build",
+    "dev": "frog dev",
+    "deploy": "vercel"
+  },
+  "dependencies": {
+    "@paywithglide/glide-js": "^0.6.2",
+    "frog": "^0.11.8",
+    "hono": "^4",
+    "viem": "^2.16.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3",
+    "vercel": "^32.3.0"
+  }
+}
