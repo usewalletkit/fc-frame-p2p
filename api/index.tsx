@@ -1,7 +1,6 @@
 import { Button, Frog } from 'frog'
 import { handle } from 'frog/vercel'
 import { baseColors } from "../lib/contracts.js";
-// import { createGlideClient, Chains, CurrenciesByChain } from "@paywithglide/glide-js";
 import { createGlideClient, Chains, CurrenciesByChain } from "@paywithglide/glide-js";
 import { encodeFunctionData, hexToBigInt, toHex } from 'viem';
 import dotenv from 'dotenv';
@@ -20,6 +19,7 @@ export const glideClient = createGlideClient({
   // Lists the chains where payments will be accepted
   chains: [Chains.Base],
 });
+
 
 export const app = new Frog({
   assetsPath: '/',
@@ -43,10 +43,8 @@ export const app = new Frog({
   
 })
 
-app.frame('/', async (c) => {
-  // const color = "#000000"
-  // const color_data = await baseColors.read.getTokenAttributes([color]);
 
+app.frame('/', async (c) => {
   return c.res({
     action: "/tx-status",
     image: '/intro.png',
