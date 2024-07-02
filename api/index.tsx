@@ -215,16 +215,6 @@ app.transaction("/mint", async (c) => {
 
 app.frame("/tx-status", async (c) => {
   const { transactionId, buttonValue } = c;
-
-  const receipt = await waitForReceipt({
-    client,
-    chain: base,
-    transactionHash: transactionId as `0x${string}`,
-  });
-
-  const address = receipt.from;
-  const decodedHexData = decodeHexData(receipt.logs[1].data);
-  const hex = decodedHexData.data1;
  
   // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
   const txHash = transactionId || buttonValue;
@@ -241,7 +231,17 @@ app.frame("/tx-status", async (c) => {
  
     // Wait for the session to complete. It can take a few seconds
     session = await glideClient.waitForSession(session.sessionId);
- 
+
+    const receipt = await waitForReceipt({
+      client,
+      chain: base,
+      transactionHash: transactionId as `0x${string}`,
+    });
+  
+    const address = receipt.from;
+    const decodedHexData = decodeHexData(receipt.logs[1].data);
+    const hex = decodedHexData.data1;
+    
     return c.res({
       title: 'Mint Base Colors with $DEGEN',
       image: (
