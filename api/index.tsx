@@ -289,10 +289,7 @@ app.frame("/tx-status", async (c) => {
           Mint +10
         </Button.Transaction>,
         <Button.Link
-          href={`https://warpcast.com/~/compose?text=degens%20love%20%2Fbasecolors%0A%0A[Note:%20a%20square%20image%20of%20the%20Base%20Colors%20logo%20will%20automatically%20appear%20in%20this%20cast.%20Please%20delete%20this%20note%20before%20casting%20and%20click%20the%20channel%20to%20cast%20in%20%2Fbasecolors.]
-  &embeds[]=https://hexcolorserver.replit.app/${hex.substring(
-            1
-          )}.png&embeds[]=https://warpcast.com/jake/0xb4da666b`}
+          href={`https://warpcast.com/~/compose?text=degens%20love%20%2Fbasecolors%0A%0A[Note:%20a%20square%20image%20of%20the%20Base%20Colors%20logo%20will%20automatically%20appear%20in%20this%20cast.%20Please%20delete%20this%20note%20before%20casting%20and%20click%20the%20channel%20to%20cast%20in%20%2Fbasecolors.]&embeds[]=https://hexcolorserver.replit.app/${hex.substring(1)}.png&embeds[]=https://warpcast.com/jake/0xb4da666b`}
         >
           Share
         </Button.Link>,
