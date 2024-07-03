@@ -17,6 +17,9 @@ Get a project id by [signing up here](https://paywithglide.xyz/). It's free!
 4. Create a `.env` file in the root directory and add the following environment variables:
    ```plaintext
     GLIDE_PROJECT_ID = "YOUR_GLIDE_PROJECT_ID"
+    AIRSTACK_API_KEY = "YOUR_AIRSTCK_API_KEY"
+    SIMPLEHASH_API_KEY = "YOUR_SIMPLEHASH_API_KEY"
+    THIRDWEB_SCRERET_KEY = "YOUR_THIRDWEB_SCRERET_KEY"
    ```
 
 ## Important
