@@ -368,6 +368,38 @@ app.frame("/leaderBoard/:address", async (c) => {
   const {address} = c.req.param();
   console.log(address);
 
+  return c.res({
+    title: 'Mint Base Colors with $DEGEN',
+    image: `/leaderBoardImage/${address}`,
+    imageAspectRatio: "1:1",
+    intents: [
+      <Button.Transaction
+        action={`/leaderBoard/${address}`}
+        target="/mintBatch"
+      >
+        Mint +10
+      </Button.Transaction>,
+      <Button.Link 
+        href={`https://warpcast.com/~/compose?text=degens%20love%20%2Fbasecolors%0A%0A[Note:%20a%20square%20image%20of%20the%20Base%20Colors%20logo%20will%20automatically%20appear%20in%20this%20cast.%20Please%20delete%20this%20note%20before%20casting%20and%20click%20the%20channel%20to%20cast%20in%20%2Fbasecolors.]&embeds[]=https://i.ibb.co/PtwcHP7/base-spectrum-square.jpg&embeds[]=https://warpcast.com/jake/0xb4da666b`}
+      >
+        Share
+      </Button.Link>,
+      <Button.Link
+        href={`https://basecolors.com?addressFromFrame=${address}`}
+      >
+        Name Colors
+      </Button.Link>,
+      <Button action={`/leaderBoard/${address}`}>Refresh</Button>,
+    ],
+  });
+});
+
+
+app.image("/leaderBoardImage/:address", async (c) => {
+  // const address = await fetchUser(transactionId);
+  const {address} = c.req.param();
+  console.log(address);
+
   const data = await baseColors.read.balanceOf([address]);
 
   // const data = await readContract({
@@ -385,7 +417,6 @@ app.frame("/leaderBoard/:address", async (c) => {
   console.log(leaderBoard);
 
   return c.res({
-    title: 'Mint Base Colors with $DEGEN',
     image: (
       <div
         style={{
@@ -484,27 +515,7 @@ app.frame("/leaderBoard/:address", async (c) => {
         <p>Your Balance (COLORS) = {userBalance}</p>
       </div>
     ),
-    imageAspectRatio: "1:1",
     imageOptions: { width: 600, height: 600 },
-    intents: [
-      <Button.Transaction
-        action={`/leaderBoard/${address}`}
-        target="/mintBatch"
-      >
-        Mint +10
-      </Button.Transaction>,
-      <Button.Link 
-        href={`https://warpcast.com/~/compose?text=degens%20love%20%2Fbasecolors%0A%0A[Note:%20a%20square%20image%20of%20the%20Base%20Colors%20logo%20will%20automatically%20appear%20in%20this%20cast.%20Please%20delete%20this%20note%20before%20casting%20and%20click%20the%20channel%20to%20cast%20in%20%2Fbasecolors.]&embeds[]=https://i.ibb.co/PtwcHP7/base-spectrum-square.jpg&embeds[]=https://warpcast.com/jake/0xb4da666b`}
-      >
-        Share
-      </Button.Link>,
-      <Button.Link
-        href={`https://basecolors.com?addressFromFrame=${address}`}
-      >
-        Name Colors
-      </Button.Link>,
-      <Button action={`/leaderBoard/${address}`}>Refresh</Button>,
-    ],
   });
 });
 
