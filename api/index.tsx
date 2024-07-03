@@ -177,7 +177,7 @@ app.frame('/', async (c) => {
 })
 
 
-app.frame('/wraps', async (c) => {
+app.frame('/warps', async (c) => {
   return c.res({
     title: 'Mint Base Colors with $DEGEN',
     action: "/tx-status",
