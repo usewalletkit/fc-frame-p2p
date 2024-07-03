@@ -321,7 +321,7 @@ app.frame("/tx-status", async (c) => {
       headers: {
         'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
       },
-      image: 'https://i.ibb.co/qCBhG73/waiting.jpg',
+      image: 'https://i.ibb.co.com/HPw5DCn/minting.jpg',
       intents: [
         <Button value={txHash} action="/tx-status">
           Refresh
