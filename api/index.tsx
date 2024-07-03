@@ -284,6 +284,8 @@ app.frame("/tx-status", async (c) => {
           </div>
         </div>
       ),
+      imageAspectRatio: "1:1",
+      imageOptions: { width: 600, height: 600 },
       intents: [
         <Button.Transaction action="/tx-status" target="/mint">
           Mint +1
@@ -482,6 +484,8 @@ app.frame("/leaderBoard/:address", async (c) => {
         <p>Your Balance (COLORS) = {userBalance}</p>
       </div>
     ),
+    imageAspectRatio: "1:1",
+    imageOptions: { width: 600, height: 600 },
     intents: [
       <Button.Transaction
         action={`/leaderBoard/${address}`}
