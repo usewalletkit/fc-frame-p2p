@@ -250,6 +250,9 @@ app.frame("/tx-status", async (c) => {
 
     return c.res({
       title: 'Mint Base Colors with $DEGEN',
+      headers: {
+        'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+      },
       image: (
         <div
           style={{
@@ -315,6 +318,9 @@ app.frame("/tx-status", async (c) => {
     // If the session is not found, it means the payment is still pending.
     // Let the user know that the payment is pending and show a button to refresh the status.
     return c.res({
+      headers: {
+        'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+      },
       image: 'https://i.ibb.co/qCBhG73/waiting.jpg',
       intents: [
         <Button value={txHash} action="/tx-status">
@@ -372,6 +378,9 @@ app.frame("/leaderBoard/:address", async (c) => {
     title: 'Mint Base Colors with $DEGEN',
     image: `/leaderBoardImage/${address}`,
     imageAspectRatio: "1:1",
+    headers: {
+      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+    },
     intents: [
       <Button.Transaction
         action={`/leaderBoard/${address}`}
@@ -417,6 +426,9 @@ app.image("/leaderBoardImage/:address", async (c) => {
   console.log(leaderBoard);
 
   return c.res({
+    headers: {
+      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+    },
     image: (
       <div
         style={{
