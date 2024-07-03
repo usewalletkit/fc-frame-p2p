@@ -179,7 +179,7 @@ app.frame('/', async (c) => {
 
 app.frame('/warps', async (c) => {
   return c.res({
-    title: 'Mint Base Colors with $DEGEN',
+    title: 'Mint Base Colors with Warps',
     action: "/tx-status",
     image: 'https://i.ibb.co/WfwTDWv/bcxdegen.jpg',
     intents: [
