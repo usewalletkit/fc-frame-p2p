@@ -177,6 +177,22 @@ app.frame('/', async (c) => {
 })
 
 
+app.frame('/wraps', async (c) => {
+  return c.res({
+    title: 'Mint Base Colors with $DEGEN',
+    action: "/tx-status",
+    image: 'https://i.ibb.co/WfwTDWv/bcxdegen.jpg',
+    intents: [
+      <Button.Mint
+        target="eip155:8453:0x7Bc1C072742D8391817EB4Eb2317F98dc72C61dB"
+      >
+        Mint
+      </Button.Mint>,
+    ],
+  })
+})
+
+
 app.transaction("/mint", async (c) => {
   const { address } = c;
   const hex = generateRandomColor();
