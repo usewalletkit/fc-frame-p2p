@@ -235,7 +235,7 @@ app.frame("/tx-status", async (c) => {
     const receipt = await waitForReceipt({
       client,
       chain: base,
-      transactionHash: txHash as `0x${string}`,
+      transactionHash: session.sponsoredTransactionHash,
     });
   
     const address = receipt.from;
