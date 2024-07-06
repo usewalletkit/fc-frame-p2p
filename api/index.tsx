@@ -129,7 +129,7 @@ function decodeHexData(hexData: string) {
 export const glideClient = createGlideClient({
   projectId: process.env.GLIDE_PROJECT_ID,
  
-  chains: [Chains.Base],
+  chains: [Chains.Arbitrum, Chains.Base],
 });
 
 
@@ -167,27 +167,11 @@ const generateRandomColor = () => {
 
 app.frame('/', async (c) => {
   return c.res({
-    title: 'Mint Base Colors with $DEGEN',
+    title: 'Base Colors on Arbitrum One',
     action: "/tx-status",
-    image: 'https://i.ibb.co/WfwTDWv/bcxdegen.jpg',
+    image: '/images/bc-x-arb.jpeg',
     intents: [
-      <Button.Transaction target="/mint">Mint with $DEGEN</Button.Transaction>,
-    ],
-  })
-})
-
-
-app.frame('/warps', async (c) => {
-  return c.res({
-    title: 'Mint Base Colors with Warps',
-    action: "/tx-status",
-    image: 'https://i.ibb.co/WfwTDWv/bcxdegen.jpg',
-    intents: [
-      <Button.Mint
-        target="eip155:8453:0x7Bc1C072742D8391817EB4Eb2317F98dc72C61dB"
-      >
-        Mint
-      </Button.Mint>,
+      <Button.Transaction target="/mint">Mint</Button.Transaction>,
     ],
   })
 })
@@ -201,10 +185,12 @@ app.transaction("/mint", async (c) => {
   const { unsignedTransaction } = await glideClient.createSession( {
     payerWalletAddress: address,
  
-    paymentCurrency: CurrenciesByChain.BaseMainnet.DEGEN,
+    // paymentCurrency: CurrenciesByChain.BaseMainnet.DEGEN,
+    paymentCurrency: CurrenciesByChain.ArbitrumOneMainnet.ETH,
 
     transaction: {
-      chainId: Chains.Base.caip2,
+      // chainId: Chains.Base.caip2,
+      chainId: Chains.Arbitrum.caip2,
       to: baseColors.address,
       value: toHex(1000000000000000n),
       input: encodeFunctionData({
@@ -221,7 +207,8 @@ app.transaction("/mint", async (c) => {
  
   // Return the payment transaction to the user
   return c.send({
-    chainId: "eip155:8453",
+    // chainId: "eip155:8453",
+    chainId: "eip155:42161",
     to: unsignedTransaction.to,
     data: unsignedTransaction.input,
     value: hexToBigInt(unsignedTransaction.value),
@@ -241,7 +228,8 @@ app.frame("/tx-status", async (c) => {
  
   try {
     let session = await glideClient.getSessionByPaymentTransaction( {
-      chainId: Chains.Base.caip2,
+      // chainId: Chains.Base.caip2,
+      chainId: Chains.Arbitrum.caip2,
       txHash,
     });
  
@@ -265,7 +253,7 @@ app.frame("/tx-status", async (c) => {
     const hex = decodedHexData.data1;
 
     return c.res({
-      title: 'Mint Base Colors with $DEGEN',
+      title: 'Base Colors on Arbitrum One',
       headers: {
         'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
       },
@@ -337,7 +325,7 @@ app.frame("/tx-status", async (c) => {
       headers: {
         'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
       },
-      image: 'https://i.ibb.co.com/HPw5DCn/minting.jpg',
+      image: '/images/minting.jpeg',
       intents: [
         <Button value={txHash} action="/tx-status">
           Refresh
@@ -356,11 +344,13 @@ app.transaction("/mintBatch", async (c) => {
 
   const { unsignedTransaction } = await glideClient.createSession( {
     payerWalletAddress: address,
- 
-    paymentCurrency: CurrenciesByChain.BaseMainnet.DEGEN,
+    
+    // paymentCurrency: CurrenciesByChain.BaseMainnet.DEGEN,
+    paymentCurrency: CurrenciesByChain.ArbitrumOneMainnet.ETH,
 
     transaction: {
-      chainId: Chains.Base.caip2,
+      // chainId: Chains.Base.caip2,
+      chainId: Chains.Arbitrum.caip2,
       to: baseColors.address,
       value: toHex(BigInt(1000000000000000n) * BigInt(10)),
       input: encodeFunctionData({
@@ -377,7 +367,8 @@ app.transaction("/mintBatch", async (c) => {
  
   // Return the payment transaction to the user
   return c.send({
-    chainId: "eip155:8453",
+    // chainId: "eip155:8453",
+    chainId: "eip155:42161",
     to: unsignedTransaction.to,
     data: unsignedTransaction.input,
     value: hexToBigInt(unsignedTransaction.value),
@@ -391,7 +382,7 @@ app.frame("/leaderBoard/:address", async (c) => {
   console.log(address);
 
   return c.res({
-    title: 'Mint Base Colors with $DEGEN',
+    title: 'Base Colors on Arbitrum One',
     image: `/leaderBoardImage/${address}`,
     imageAspectRatio: "1:1",
     headers: {
