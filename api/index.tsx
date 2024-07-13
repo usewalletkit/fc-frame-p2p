@@ -10,8 +10,8 @@ import axios from "axios";
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
-// import { devtools } from 'frog/dev';
-// import { serveStatic } from 'frog/serve-static';
+import { devtools } from 'frog/dev';
+import { serveStatic } from 'frog/serve-static';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -193,7 +193,7 @@ app.transaction("/mint", async (c) => {
     transaction: {
       chainId: Chains.Base.caip2,
       to: baseColors.address,
-      value: toHex(1000000000000000n),
+      value: toHex(price),
       input: encodeFunctionData({
         abi: baseColors.abi,
         functionName: "mint",
@@ -542,7 +542,7 @@ app.image("/leaderBoardImage/:address", async (c) => {
 
 
 // Uncomment for local server testing
-// devtools(app, { serveStatic });
+devtools(app, { serveStatic });
 
 export const GET = handle(app)
 export const POST = handle(app)
