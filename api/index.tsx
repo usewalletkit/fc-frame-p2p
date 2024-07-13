@@ -4,7 +4,7 @@ import { baseColors } from "../lib/contracts.js";
 import { createGlideClient, Chains, CurrenciesByChain } from "@paywithglide/glide-js";
 import { encodeFunctionData, hexToBigInt, toHex } from 'viem';
 import { init, fetchQuery } from "@airstack/node";
-import { base } from "thirdweb/chains";
+import { base, arbitrum } from "thirdweb/chains";
 import { createThirdwebClient, waitForReceipt } from "thirdweb";
 import axios from "axios";
 import dotenv from 'dotenv';
@@ -181,6 +181,8 @@ app.transaction("/mint", async (c) => {
   const { address } = c;
   const hex = generateRandomColor();
   console.log(hex);
+
+  const price = await baseColors.read.mintPrice();
  
   const { unsignedTransaction } = await glideClient.createSession( {
     payerWalletAddress: address,
@@ -189,10 +191,9 @@ app.transaction("/mint", async (c) => {
     paymentCurrency: CurrenciesByChain.ArbitrumOneMainnet.ETH,
 
     transaction: {
-      // chainId: Chains.Base.caip2,
-      chainId: Chains.Arbitrum.caip2,
+      chainId: Chains.Base.caip2,
       to: baseColors.address,
-      value: toHex(1000000000000000n),
+      value: toHex(price),
       input: encodeFunctionData({
         abi: baseColors.abi,
         functionName: "mint",
@@ -238,7 +239,7 @@ app.frame("/tx-status", async (c) => {
 
     const receiptAddress = await waitForReceipt({
       client,
-      chain: base,
+      chain: arbitrum,
       transactionHash: txHash as `0x${string}`,
     });
 
@@ -304,7 +305,7 @@ app.frame("/tx-status", async (c) => {
           Mint +10
         </Button.Transaction>,
         <Button.Link
-          href={`https://warpcast.com/~/compose?text=arbitrum%20love%20%2Fbasecolors%0A%0A%5BNote%3A%20a%20square%20image%20of%20your%20color%20will%20automatically%20appear%20in%20this%20cast.%20Please%20delete%20this%20note%20before%20casting%20and%20click%20the%20channel%20to%20cast%20in%20%2Fbasecolors.%5D
+          href={`https://warpcast.com/~/compose?text=@arbitrum%20love%20%2Fbasecolors%0A%0A%5BNote%3A%20a%20square%20image%20of%20your%20color%20will%20automatically%20appear%20in%20this%20cast.%20Please%20delete%20this%20note%20before%20casting%20and%20click%20the%20channel%20to%20cast%20in%20%2Fbasecolors.%5D
   &embeds[]=https://hexcolorserver.replit.app/${hex.substring(
             1
           )}.png&embeds[]=https://warpcast.com/jake/0xb4da666b`}
@@ -342,6 +343,8 @@ app.transaction("/mintBatch", async (c) => {
   const hexs = Array.from({ length: 10 }, generateRandomColor);
   console.log(hexs);
 
+  const price = await baseColors.read.mintPrice();
+
   const { unsignedTransaction } = await glideClient.createSession( {
     payerWalletAddress: address,
     
@@ -349,10 +352,9 @@ app.transaction("/mintBatch", async (c) => {
     paymentCurrency: CurrenciesByChain.ArbitrumOneMainnet.ETH,
 
     transaction: {
-      // chainId: Chains.Base.caip2,
-      chainId: Chains.Arbitrum.caip2,
+      chainId: Chains.Base.caip2,
       to: baseColors.address,
-      value: toHex(BigInt(1000000000000000n) * BigInt(10)),
+      value: toHex(BigInt(price) * BigInt(10)),
       input: encodeFunctionData({
         abi: baseColors.abi,
         functionName: "mintBatch",
@@ -396,7 +398,7 @@ app.frame("/leaderBoard/:address", async (c) => {
         Mint +10
       </Button.Transaction>,
       <Button.Link 
-        href={`https://warpcast.com/~/compose?text=arbitrum%20love%20%2Fbasecolors%0A%0A[Note:%20a%20square%20image%20of%20the%20Base%20Colors%20logo%20will%20automatically%20appear%20in%20this%20cast.%20Please%20delete%20this%20note%20before%20casting%20and%20click%20the%20channel%20to%20cast%20in%20%2Fbasecolors.]&embeds[]=https://i.ibb.co/PtwcHP7/base-spectrum-square.jpg&embeds[]=https://warpcast.com/jake/0xb4da666b`}
+        href={`https://warpcast.com/~/compose?text=@arbitrum%20love%20%2Fbasecolors%0A%0A[Note:%20a%20square%20image%20of%20the%20Base%20Colors%20logo%20will%20automatically%20appear%20in%20this%20cast.%20Please%20delete%20this%20note%20before%20casting%20and%20click%20the%20channel%20to%20cast%20in%20%2Fbasecolors.]&embeds[]=https://i.ibb.co/PtwcHP7/base-spectrum-square.jpg&embeds[]=https://warpcast.com/jake/0xb4da666b`}
       >
         Share
       </Button.Link>,
