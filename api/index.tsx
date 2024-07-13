@@ -236,11 +236,11 @@ app.frame("/tx-status", async (c) => {
     // Wait for the session to complete. It can take a few seconds
     session = await glideClient.waitForSession(session.sessionId);
 
-    const receiptAddress = await waitForReceipt({
-      client,
-      chain: arbitrum,
-      transactionHash: txHash as `0x${string}`,
-    });
+    // const receiptAddress = await waitForReceipt({
+    //   client,
+    //   chain: arbitrum,
+    //   transactionHash: txHash as `0x${string}`,
+    // });
 
     const receipt = await waitForReceipt({
       client,
@@ -248,7 +248,7 @@ app.frame("/tx-status", async (c) => {
       transactionHash: session.sponsoredTransactionHash,
     });
   
-    const address = receiptAddress.from;
+    // const address = receiptAddress.from;
     const decodedHexData = decodeHexData(receipt.logs[1].data);
     const hex = decodedHexData.data1;
 
@@ -298,7 +298,7 @@ app.frame("/tx-status", async (c) => {
           Mint +1
         </Button.Transaction>,
         <Button.Transaction
-          action={`/leaderBoard/${address}`}
+          action={`/leaderBoard`}
           target="/mintBatch"
         >
           Mint +10
@@ -312,7 +312,7 @@ app.frame("/tx-status", async (c) => {
           Share
         </Button.Link>,
         <Button.Link
-          href={`https://basecolors.com?addressFromFrame=${address}`}
+          href={`https://basecolors.com?addressFromFrame=`}
         >
           Name it
         </Button.Link>,
@@ -322,9 +322,6 @@ app.frame("/tx-status", async (c) => {
     // If the session is not found, it means the payment is still pending.
     // Let the user know that the payment is pending and show a button to refresh the status.
     return c.res({
-      headers: {
-        'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
-      },
       image: 'https://i.ibb.co.com/HPw5DCn/minting.jpg',
       intents: [
         <Button value={txHash} action="/tx-status">
