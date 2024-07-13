@@ -152,6 +152,7 @@ export const app = new Frog({
     ]
   },
   browserLocation: 'https://www.basecolors.com/',
+  title: 'Base Colors on Arbitrum One',
 })
 
 
@@ -211,7 +212,7 @@ app.transaction("/mint", async (c) => {
     // chainId: "eip155:8453",
     chainId: "eip155:42161",
     to: unsignedTransaction.to,
-    data: unsignedTransaction.input || "0x0",
+    data: unsignedTransaction.input || undefined,
     value: hexToBigInt(unsignedTransaction.value),
   });
 });
