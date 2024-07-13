@@ -187,8 +187,8 @@ app.transaction("/mint", async (c) => {
   const { unsignedTransaction } = await glideClient.createSession( {
     payerWalletAddress: address,
  
-    // paymentCurrency: CurrenciesByChain.BaseMainnet.DEGEN,
-    paymentCurrency: CurrenciesByChain.ArbitrumOneMainnet.ETH,
+    paymentCurrency: CurrenciesByChain.BaseMainnet.DEGEN,
+    // paymentCurrency: CurrenciesByChain.ArbitrumOneMainnet.ETH,
 
     transaction: {
       chainId: Chains.Base.caip2,
@@ -208,8 +208,8 @@ app.transaction("/mint", async (c) => {
  
   // Return the payment transaction to the user
   return c.send({
-    // chainId: "eip155:8453",
-    chainId: "eip155:42161",
+    chainId: "eip155:8453",
+    // chainId: "eip155:42161",
     to: unsignedTransaction.to,
     data: unsignedTransaction.input,
     value: hexToBigInt(unsignedTransaction.value),
@@ -229,8 +229,8 @@ app.frame("/tx-status", async (c) => {
  
   try {
     let session = await glideClient.getSessionByPaymentTransaction( {
-      // chainId: Chains.Base.caip2,
-      chainId: Chains.Arbitrum.caip2,
+      chainId: Chains.Base.caip2,
+      // chainId: Chains.Arbitrum.caip2,
       txHash,
     });
  
