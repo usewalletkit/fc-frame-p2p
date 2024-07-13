@@ -229,8 +229,7 @@ app.frame("/tx-status", async (c) => {
  
   try {
     let session = await glideClient.getSessionByPaymentTransaction( {
-      // chainId: Chains.Base.caip2,
-      chainId: Chains.Arbitrum.caip2,
+      chainId: Chains.Base.caip2,
       txHash,
     });
  
@@ -239,7 +238,7 @@ app.frame("/tx-status", async (c) => {
 
     const receiptAddress = await waitForReceipt({
       client,
-      chain: base,
+      chain: arbitrum,
       transactionHash: txHash as `0x${string}`,
     });
 
