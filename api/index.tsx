@@ -193,7 +193,7 @@ app.transaction("/mint", async (c) => {
     transaction: {
       chainId: Chains.Base.caip2,
       to: baseColors.address,
-      value: toHex(price),
+      value: toHex(1000000000000000n),
       input: encodeFunctionData({
         abi: baseColors.abi,
         functionName: "mint",
