@@ -239,7 +239,7 @@ app.frame("/tx-status", async (c) => {
 
     const receiptAddress = await waitForReceipt({
       client,
-      chain: arbitrum,
+      chain: base,
       transactionHash: txHash as `0x${string}`,
     });
 
