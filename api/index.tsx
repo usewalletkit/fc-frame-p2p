@@ -10,8 +10,8 @@ import axios from "axios";
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
-import { devtools } from 'frog/dev';
-import { serveStatic } from 'frog/serve-static';
+// import { devtools } from 'frog/dev';
+// import { serveStatic } from 'frog/serve-static';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -187,8 +187,8 @@ app.transaction("/mint", async (c) => {
   const { unsignedTransaction } = await glideClient.createSession( {
     payerWalletAddress: address,
  
-    paymentCurrency: CurrenciesByChain.BaseMainnet.DEGEN,
-    // paymentCurrency: CurrenciesByChain.ArbitrumOneMainnet.ETH,
+    // paymentCurrency: CurrenciesByChain.BaseMainnet.DEGEN,
+    paymentCurrency: CurrenciesByChain.ArbitrumOneMainnet.ETH,
 
     transaction: {
       chainId: Chains.Base.caip2,
@@ -208,8 +208,8 @@ app.transaction("/mint", async (c) => {
  
   // Return the payment transaction to the user
   return c.send({
-    chainId: "eip155:8453",
-    // chainId: "eip155:42161",
+    // chainId: "eip155:8453",
+    chainId: "eip155:42161",
     to: unsignedTransaction.to,
     data: unsignedTransaction.input,
     value: hexToBigInt(unsignedTransaction.value),
@@ -229,8 +229,8 @@ app.frame("/tx-status", async (c) => {
  
   try {
     let session = await glideClient.getSessionByPaymentTransaction( {
-      chainId: Chains.Base.caip2,
-      // chainId: Chains.Arbitrum.caip2,
+      // chainId: Chains.Base.caip2,
+      chainId: Chains.Arbitrum.caip2,
       txHash,
     });
  
@@ -542,7 +542,7 @@ app.image("/leaderBoardImage/:address", async (c) => {
 
 
 // Uncomment for local server testing
-devtools(app, { serveStatic });
+// devtools(app, { serveStatic });
 
 export const GET = handle(app)
 export const POST = handle(app)
