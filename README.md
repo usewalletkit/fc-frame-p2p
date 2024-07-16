@@ -28,6 +28,12 @@ Use this Glide version to make it works `@paywithglide/glide-js": "^0.6.2"`
 npm install @paywithglide/glide-js@^0.6.2
 ```
 
+## Dune Dashboard 
+Click this Base Colors NFTs [Metrics](https://dune.com/0x94t3z/base-colors-nfts-frame) to view detailing usage, volume, and retention.
+
+## Demo
+Watch the demo on YouTube: [Base Colors NFTs Frame [DEMO]](https://youtu.be/sDXCLrXJOY4)
+
 ## Run the Frame
 ```
 npm run dev
