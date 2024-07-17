@@ -8,11 +8,11 @@ import {
   Spacer, 
   vars 
 } from "../lib/ui.js";
-// import { 
-//   Chains, 
-//   CurrenciesByChain,
-// } from "@paywithglide/glide-js";
-// import { glideClient } from "./config.js"
+import { 
+  Chains, 
+  CurrenciesByChain,
+} from "@paywithglide/glide-js";
+import { glideClient } from "./config.js"
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
@@ -42,6 +42,7 @@ export const app = new Frog({
     'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
   },
 })
+
 
 app.frame('/', (c) => {
   return c.res({
@@ -299,9 +300,17 @@ app.image('/review-image/:toFid', async (c) => {
 })
 
 
-app.frame('/send', (c) => {
+app.frame('/send/:toFid', (c) => {
+  const { inputText } = c;
+
+  const { toFid } = c.req.param();
+
+  const paymentCurrency = "5 USDC";
+
+  const ethAmount = "0.002";
+  
   return c.res({
-    image: '/send-image',
+    image: `/send-image/${toFid}/${ethAmount}`,
     intents: [
       <Button.Transaction target="/send-tx">Send</Button.Transaction>,
     ],
@@ -309,10 +318,30 @@ app.frame('/send', (c) => {
 })
 
 
-app.image('/send-image', (c) => {
-  const displayName = "0x94t3z 📟 ✦⁺";
+app.image('/send-image/:toFid/:ethAmount', async (c) => {
+  const { toFid, ethAmount } = c.req.param();
 
-  const truncatedDisplayName = displayName.length >= 10 ? displayName.substring(0, 10) + "..." : displayName;
+  const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${toFid}`, {
+    method: 'GET',
+    headers: {
+        'accept': 'application/json',
+        'api_key': process.env.NEYNAR_API_KEY || '',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  
+  if (!data || !data.users || data.users.length === 0) {
+    throw new Error(`User not found!`);
+  }
+
+  const user = data.users[0];
+
+  const displayName = user.display_name.length >= 10 ?  user.display_name.substring(0, 10) + "..." :  user.display_name;
 
   return c.res({
     image: (
@@ -327,7 +356,7 @@ app.image('/send-image', (c) => {
         <Spacer size="16" />
 
         <Text align="left" color="black" weight="600" size="48">
-          Pay {truncatedDisplayName}
+          Pay {displayName}
         </Text>
 
         <Spacer size="10" />
@@ -337,7 +366,7 @@ app.image('/send-image', (c) => {
         </Text>
 
         <Text align="left" weight="400" color="black" size="20">
-          {truncatedDisplayName} will receive 0.002 ETH on Base.
+          {displayName} will receive {ethAmount} ETH on Base.
         </Text>
         
         <Spacer size="48" />
@@ -382,7 +411,7 @@ app.image('/send-image', (c) => {
                 />
               <Spacer size="8" />
               <Text align="left" weight="600" color="black" size="24">
-                0.002 ETH
+                {ethAmount} ETH
               </Text>
             </Box>
           </Box>
@@ -393,8 +422,42 @@ app.image('/send-image', (c) => {
 })
 
 
-app.transaction('/send-tx', (c) => {
-  // Send transaction response.
+app.transaction('/send-tx', async (c, next) => {
+  await next();
+  const txParams = await c.res.json();
+  txParams.attribution = false;
+  console.log(txParams);
+  c.res = new Response(JSON.stringify(txParams), {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+},
+async (c) => {
+  const { address } = c;
+  
+  const { unsignedTransaction } = await glideClient.createSession({
+    payerWalletAddress: address,
+   
+    // Optional. Setting this restricts the user to only
+    // pay with the specified currency.
+    paymentCurrency: CurrenciesByChain.OptimismMainnet.ETH,
+    
+    transaction: {
+      chainId: Chains.Base.caip2,
+      // value: toHex(),
+      // input: encodeFunctionData({
+      //   abi: storageRegistry.abi,
+      //   functionName: "rent",
+      //   args: [BigInt(toFid), units],
+      // }),
+    },
+  });
+
+  if (!unsignedTransaction) {
+    throw new Error("missing unsigned transaction");
+  }
+
   return c.send({
     chainId: 'eip155:8453',
     to: '0xc698865c38eC12b475AA55764d447566dd54c758',
