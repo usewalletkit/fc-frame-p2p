@@ -183,7 +183,16 @@ app.image('/review-image/:toFid', async (c) => {
 
   const user = data.users[0];
 
-  const displayName =  user.display_name.length >= 15 ?  user.display_name.substring(0, 15) + "..." :  user.display_name;
+  const pfpUrl = user.pfp_url;
+
+  const displayName = user.display_name.length >= 15 ?  user.display_name.substring(0, 15) + "..." :  user.display_name;
+
+  const username = user.username;
+
+  const bio = user.profile.bio.text;
+
+  const following = user.following_count;
+  const followers = user.follower_count;
 
   function formatNumber(num: number) {
     if (num >= 1000) {
@@ -191,11 +200,6 @@ app.image('/review-image/:toFid', async (c) => {
     }
     return num.toString();
   }
-
-  const bio = user.profile.bio.text;
-
-  const following = user.following_count;
-  const followers = user.follower_count;
   
   return c.res({
     headers: {
@@ -250,7 +254,7 @@ app.image('/review-image/:toFid', async (c) => {
             <img
                 height="180"
                 width="180"
-                src={user.pfp_url}
+                src={pfpUrl}
                 style={{
                   borderRadius: "15%",
                 }}
@@ -260,7 +264,7 @@ app.image('/review-image/:toFid', async (c) => {
               {displayName}
             </Text>
             <Text align="left" weight="400" color="grey" size="14">
-              {user.username}
+              {username}
             </Text>
             <Spacer size="8" />
             <Text align="left" weight="400" color="black" size="12">
