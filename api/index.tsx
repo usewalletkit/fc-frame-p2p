@@ -22,16 +22,23 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file
 dotenv.config();
 
+
+const baseUrl = "https://warpcast.com/~/compose";
+const text = "@paywithglide P2P Transfer 💸\n\nFrame by @tusharsoni.eth & @0x94t3z.eth";
+const embedUrl = "https://paywithglide.vercel.app/api/frame";
+
+const CAST_INTENS = `${baseUrl}?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`;
+
+
 export const app = new Frog({
   assetsPath: '/',
   basePath: '/api/frame',
   ui: { vars },
+  title: 'PayWithGlide.xyz',
+  browserLocation: CAST_INTENS,
   headers: {
     'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
   },
-  title: 'PayWithGlide.xyz'
-  // Supply a Hub to enable frame verification.
-  // hub: neynar({ apiKey: 'NEYNAR_FROG_FM' })
 })
 
 app.frame('/', (c) => {
