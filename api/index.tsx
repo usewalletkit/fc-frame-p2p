@@ -256,7 +256,7 @@ app.image('/review-image/:toFid', async (c) => {
             </Box>
           </Box>
 
-          <Box backgroundColor="bg" alignHorizontal="left" flex="1" paddingRight="36">
+          <Box backgroundColor="bg" alignHorizontal="left" alignVertical="bottom" flex="1" paddingRight="36">
           <Spacer size="10" />
             <img
                 height="160"
