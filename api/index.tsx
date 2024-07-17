@@ -216,8 +216,8 @@ app.image('/review-image/:toFid', async (c) => {
           height="100%"
       >
 
-        <Box grow flexDirection="row" alignVertical="bottom" gap="8">
-          <Box backgroundColor="bg" flex="2" paddingRight="32" >
+        <Box grow flexDirection="row" gap="8">
+          <Box backgroundColor="bg" alignVertical="bottom" flex="2" paddingRight="32" >
             <Image
               height="32"
               objectFit="cover"
@@ -256,7 +256,7 @@ app.image('/review-image/:toFid', async (c) => {
             </Box>
           </Box>
 
-          <Box backgroundColor="bg" alignHorizontal="left" flex="1" paddingRight="36">
+          <Box backgroundColor="bg" alignHorizontal="left" alignVertical="bottom" flex="1" paddingRight="36">
           <Spacer size="10" />
             <img
                 height="160"
