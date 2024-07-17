@@ -215,49 +215,56 @@ app.image('/review-image/:toFid', async (c) => {
           textAlign="left"
           height="100%"
       >
-        
+
         <Box grow flexDirection="row" gap="8">
-          <Box backgroundColor="bg" flex="2" paddingRight="32" paddingTop="60" >
+          <Box backgroundColor="bg" flex="2" paddingRight="32" >
+            <Image
+              height="32"
+              objectFit="cover"
+              src="/images/primary.png"
+            />
+
+            <Spacer size="64" />
             <Text align="left" color="black" weight="600" size="24">
               Pay {displayName}
             </Text>
-            <Spacer size="10" />
+            <Spacer size="6" />
             <Text align="left" weight="400" color="grey" size="16">
               Send any token to {displayName} and they will receive ETH on Base.
             </Text>
 
-            <Spacer size="16" />
+            <Spacer size="10" />
 
             <Box 
-              borderStyle="solid"
-              borderWidth="1"
-              borderRadius="16"
-              padding="18"
+              borderRadius="14"
+              padding="14"
               background="blue"
-              height="80"
+              height="60"
               width="100%"
             >
               <Box 
                 flexDirection="row" 
                 alignHorizontal="left" 
-                alignVertical="center"
+                alignVertical="top"
               >
                 <Icon name="info" color="white" size="18" />
                 <Spacer size="10" />
-                <Text align="left" weight="400" color="white" size="16">
-                  Enter the amount and the token you wish to send
+                <Text align="left" weight="400" color="white" size="12">
+                  Enter the amount and the token you want to send
                 </Text>
               </Box>
             </Box>
           </Box>
 
           <Box backgroundColor="bg" alignHorizontal="left" flex="1" paddingRight="36">
+          <Spacer size="10" />
             <img
-                height="180"
-                width="180"
+                height="160"
+                width="160"
                 src={pfpUrl}
                 style={{
                   borderRadius: "15%",
+                  objectFit: "cover"
                 }}
               />
             <Spacer size="6" />
@@ -267,11 +274,11 @@ app.image('/review-image/:toFid', async (c) => {
             <Text align="left" weight="400" color="grey" size="14">
               {username}
             </Text>
-            <Spacer size="8" />
+            <Spacer size="10" />
             <Text align="left" weight="400" color="black" size="12">
               {bio}
             </Text>
-            <Spacer size="8" />
+            <Spacer size="10" />
             <Box flexDirection="row" background="bg" justifyContent="center">
               <Text align="left" weight="600" color="black" size="12">
                 {formatNumber(following)}
