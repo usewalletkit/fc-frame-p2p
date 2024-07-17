@@ -55,7 +55,7 @@ app.frame('/', (c) => {
           textAlign="left"
           height="100%"
       >
-        <Spacer size="10" />
+        <Spacer size="14" />
         <Image
           height="32"
           objectFit="cover"
@@ -217,7 +217,15 @@ app.image('/review-image/:toFid', async (c) => {
       >
 
         <Box grow flexDirection="row" gap="8">
-          <Box backgroundColor="bg" alignVertical="bottom" flex="2" paddingRight="32" >
+          <Box 
+            backgroundColor="bg" 
+            flex="2" 
+            paddingRight="32" 
+            display="flex"
+            flexDirection="column"
+            justifyContent="flex-end"
+            paddingBottom="4"
+          >
             <Image
               height="32"
               objectFit="cover"
@@ -244,8 +252,8 @@ app.image('/review-image/:toFid', async (c) => {
             >
               <Box 
                 flexDirection="row" 
-                alignHorizontal="left" 
-                alignVertical="top"
+                alignItems="flex-start"
+                display="flex"
               >
                 <Icon name="info" color="white" size="18" />
                 <Spacer size="10" />
@@ -256,18 +264,28 @@ app.image('/review-image/:toFid', async (c) => {
             </Box>
           </Box>
 
-          <Box backgroundColor="bg" alignHorizontal="left" alignVertical="bottom" flex="1" paddingRight="36">
-          <Spacer size="10" />
+          <Box 
+            backgroundColor="bg" 
+            flex="1" 
+            paddingRight="36" 
+            display="flex" 
+            flexDirection="column"
+            justifyContent="flex-end"
+          >
+            <Spacer size="10" />
+
             <img
-                height="160"
-                width="160"
-                src={pfpUrl}
-                style={{
-                  borderRadius: "15%",
-                  objectFit: "cover"
-                }}
-              />
+              height="160"
+              width="160"
+              src={pfpUrl}
+              style={{
+                borderRadius: "15%",
+                objectFit: "cover"
+              }}
+            />
+
             <Spacer size="6" />
+
             <Text align="left" weight="600" color="black" size="18">
               {displayName}
             </Text>
@@ -278,29 +296,39 @@ app.image('/review-image/:toFid', async (c) => {
             <Text align="left" weight="400" color="black" size="12">
               {bio}
             </Text>
+
             <Spacer size="10" />
-            <Box flexDirection="row" background="bg" justifyContent="center">
-              <Text align="left" weight="600" color="black" size="12">
-                {formatNumber(following)}
-              </Text>
 
-              <Spacer size="6" />
+            <Box 
+              flexDirection="row" 
+              padding="0" 
+              alignItems="center" 
+              justifyContent="space-between"
+              display="flex"
+            >
+              <Box flexDirection="row" alignItems="center" display="flex">
+                <Text align="left" weight="600" color="black" size="12">
+                  {formatNumber(following)}
+                </Text>
+                <Spacer size="4" />
+                <Text align="left" color="grey" size="12">Following</Text>
+              </Box>
 
-              <Text align="center" color="grey" size="12"> Following</Text>
+              <Spacer size="10" />
 
-              <Spacer size="12" />
-
-              <Text align="right" weight="600" color="black" size="12">
-                 {formatNumber(followers)}
-              </Text>
-
-              <Spacer size="6" />
-
-              <Text align="right" color="grey" size="12"> Followers</Text>
+              <Box flexDirection="row" alignItems="center" display="flex">
+                <Text align="left" weight="600" color="black" size="12">
+                  {formatNumber(followers)}
+                </Text>
+                <Spacer size="4" />
+                <Text align="left" color="grey" size="12">Followers</Text>
+              </Box>
             </Box>
-            
+
           </Box>
+
         </Box>
+
       </Box>
     ),
   })
