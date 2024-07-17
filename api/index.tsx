@@ -29,6 +29,8 @@ const embedUrl = "https://paywithglide.vercel.app/api/frame";
 
 const CAST_INTENS = `${baseUrl}?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`;
 
+const baseUrlNeynarV2 = process.env.BASE_URL_NEYNAR_V2;
+
 
 export const app = new Frog({
   assetsPath: '/',
@@ -76,24 +78,112 @@ app.frame('/', (c) => {
     ),
     intents: [
       <TextInput placeholder="dwr.eth or 0xc69...c758" />,
-      <Button action="/continue">Continue</Button>,
+      <Button action="/review">Continue</Button>,
     ],
   })
 })
 
 
-app.frame('/continue', (c) => {
-  return c.res({
-    image: '/continue-image',
-    intents: [
-      <TextInput placeholder="0.1 eth on base or 5 usdc" />,
-      <Button action="/send">Review</Button>,
-    ],
-  })
-})
+app.frame('/review', async (c) => {
+  const { inputText } = c;
+
+  try {
+    // Fetch user by username
+    const byUsernameResponse = await fetch(`${baseUrlNeynarV2}/user/search?q=${inputText}`, {
+      method: 'GET',
+      headers: {
+          'accept': 'application/json',
+          'api_key': process.env.NEYNAR_API_KEY || '',
+      },
+    });
+
+    // Fetch user by address
+    const byAddressResponse = await fetch(`${baseUrlNeynarV2}/user/bulk-by-address?addresses=${inputText}`, {
+      method: 'GET',
+      headers: {
+          'accept': 'application/json',
+          'api_key': process.env.NEYNAR_API_KEY || '',
+      },
+    });
+
+    // Check if at least one response is okay
+    if (!byUsernameResponse.ok && !byAddressResponse.ok) {
+      return c.error(
+        { 
+          message: 'Response not OK!' 
+        }
+      );
+    }
+
+    // Parse the responses
+    const dataUsername = byUsernameResponse.ok ? await byUsernameResponse.json() : null;
+    const dataAddress = byAddressResponse.ok ? await byAddressResponse.json() : null;
+
+    // Check if results are available in either response
+    const username = dataUsername?.result?.users?.[0];
+    const address = dataAddress ? (Object.values(dataAddress) as any)[0][0] : null;
+
+    if (!username && !address) {
+      return c.error(
+        { 
+          message: 'User not found woy!' 
+        }
+      );
+    }
+
+    // Get the fid from either username or address
+    const toFid = username?.fid || address?.fid;
+
+    if (!toFid) {
+      return c.error( 
+        { 
+          message: 'User fid not found!' 
+        }
+      );
+    }
+
+    // Respond with the image and intents
+    return c.res({
+      image: `/review-image/${toFid}`,
+      intents: [
+        <TextInput placeholder="0.1 eth on base or 5 usdc" />,
+        <Button action={`/send/${toFid}`}>Review</Button>,
+      ],
+    });
+  } catch (error) {
+    return c.error(
+      { 
+        message: 'An error occurred while searching for the user.' 
+      }
+    );
+  }
+});
 
 
-app.image('/continue-image', (c) => {
+app.image('/review-image/:toFid', async (c) => {
+  const { toFid } = c.req.param();
+
+  const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${toFid}`, {
+    method: 'GET',
+    headers: {
+        'accept': 'application/json',
+        'api_key': process.env.NEYNAR_API_KEY || '',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  
+  if (!data || !data.users || data.users.length === 0) {
+    throw new Error(`User not found!`);
+  }
+
+  const user = data.users[0];
+
+  const displayName =  user.display_name.length >= 15 ?  user.display_name.substring(0, 15) + "..." :  user.display_name;
 
   function formatNumber(num: number) {
     if (num >= 1000) {
@@ -102,8 +192,10 @@ app.image('/continue-image', (c) => {
     return num.toString();
   }
 
-  const following = 125;
-  const followers = 1067;
+  const bio = user.profile.bio.text;
+
+  const following = user.following_count;
+  const followers = user.follower_count;
   
   return c.res({
     headers: {
@@ -122,11 +214,11 @@ app.image('/continue-image', (c) => {
         <Box grow flexDirection="row" gap="8">
           <Box backgroundColor="bg" flex="2" paddingRight="32" paddingTop="60" >
             <Text align="left" color="black" weight="600" size="24">
-              Pay 0x94t3z 📟 ✦⁺
+              Pay {displayName}
             </Text>
             <Spacer size="10" />
             <Text align="left" weight="400" color="grey" size="16">
-              Send any token to 0x94t3z 📟 ✦⁺ and they will receive ETH on Base.
+              Send any token to {displayName} and they will receive ETH on Base.
             </Text>
 
             <Spacer size="16" />
@@ -154,40 +246,47 @@ app.image('/continue-image', (c) => {
             </Box>
           </Box>
 
-          <Box backgroundColor="bg" flex="1" paddingRight="36" >
+          <Box backgroundColor="bg" alignHorizontal="left" flex="1" paddingRight="36">
             <img
                 height="180"
                 width="180"
-                src="https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/1889baf9-da5a-42d3-2727-5adf1a206200/original"
+                src={user.pfp_url}
                 style={{
                   borderRadius: "15%",
                 }}
               />
             <Spacer size="6" />
             <Text align="left" weight="600" color="black" size="18">
-              0x94t3z 📟 ✦⁺
+              {displayName}
             </Text>
             <Text align="left" weight="400" color="grey" size="14">
-              @0x94t3z.eth
+              {user.username}
             </Text>
             <Spacer size="8" />
             <Text align="left" weight="400" color="black" size="12">
-              Farcaster Builder 🧢🎒- 2nd of @mr94t3z (shadow banned). Trying to build /castcred 🥽
+              {bio}
             </Text>
             <Spacer size="8" />
-            <Box flexDirection="row" justifyContent="center">
+            <Box flexDirection="row" background="bg" justifyContent="center">
               <Text align="left" weight="600" color="black" size="12">
                 {formatNumber(following)}
               </Text>
-              <Spacer size="8" />
+
+              <Spacer size="6" />
+
               <Text align="center" color="grey" size="12"> Following</Text>
-              <Spacer size="10" />
-              <Text align="left" weight="600" color="black" size="12">
+
+              <Spacer size="12" />
+
+              <Text align="right" weight="600" color="black" size="12">
                  {formatNumber(followers)}
               </Text>
-              <Spacer size="8" />
-              <Text align="center" color="grey" size="12"> Followers</Text>
+
+              <Spacer size="6" />
+
+              <Text align="right" color="grey" size="12"> Followers</Text>
             </Box>
+            
           </Box>
         </Box>
       </Box>
