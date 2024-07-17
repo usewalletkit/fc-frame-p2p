@@ -290,7 +290,7 @@ app.image('/review-image/:toFid', async (c) => {
               {displayName}
             </Text>
             <Text align="left" weight="400" color="grey" size="14">
-              {username}
+              @{username}
             </Text>
             <Spacer size="10" />
             <Text align="left" weight="400" color="black" size="12">
