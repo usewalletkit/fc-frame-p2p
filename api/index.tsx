@@ -149,8 +149,8 @@ app.image('/continue-image', (c) => {
 
           <Box backgroundColor="bg" flex="1" paddingRight="36" >
             <img
-                height="160"
-                width="160"
+                height="180"
+                width="180"
                 src="https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/1889baf9-da5a-42d3-2727-5adf1a206200/original"
                 style={{
                   borderRadius: "15%",
@@ -163,11 +163,11 @@ app.image('/continue-image', (c) => {
             <Text align="left" weight="400" color="grey" size="14">
               @0x94t3z.eth
             </Text>
-            <Spacer size="10" />
+            <Spacer size="8" />
             <Text align="left" weight="400" color="black" size="12">
               Farcaster Builder 🧢🎒- 2nd of @mr94t3z (shadow banned). Trying to build /castcred 🥽
             </Text>
-            <Spacer size="6" />
+            <Spacer size="8" />
             <Box flexDirection="row" justifyContent="center">
               <Text align="left" weight="600" color="black" size="12">
                 {formatNumber(following)}
@@ -270,6 +270,7 @@ app.frame('/send', (c) => {
 
 // Uncomment for local server testing
 // devtools(app, { serveStatic });
+
 
 export const GET = handle(app)
 export const POST = handle(app)
