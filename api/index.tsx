@@ -1,4 +1,4 @@
-import { Button, Frog, TextInput } from 'frog'
+import { Button, Frog, parseEther, TextInput } from 'frog'
 import { handle } from 'frog/vercel'
 import { 
   Box, 
@@ -198,6 +198,20 @@ app.image('/continue-image', (c) => {
 
 app.frame('/send', (c) => {
   return c.res({
+    image: '/send-image',
+    intents: [
+      <Button.Transaction target="/send-tx">Send</Button.Transaction>,
+    ],
+  })
+})
+
+
+app.image('/send-image', (c) => {
+  const displayName = "0x94t3z 📟 ✦⁺";
+
+  const truncatedDisplayName = displayName.length >= 10 ? displayName.substring(0, 10) + "..." : displayName;
+
+  return c.res({
     image: (
       <Box
           grow
@@ -207,16 +221,20 @@ app.frame('/send', (c) => {
           textAlign="left"
           height="100%"
       >
-       
+        <Spacer size="16" />
+
         <Text align="left" color="black" weight="600" size="48">
-          Pay 0x94t3z 📟 ✦⁺
+          Pay {truncatedDisplayName}
         </Text>
+
         <Spacer size="10" />
+
         <Text align="left" weight="400" color="black" size="20">
           You are sending 5 USDC on Optimism.
         </Text>
+
         <Text align="left" weight="400" color="black" size="20">
-          0x94t3z 📟 ✦⁺ will receive 0.002 ETH on Base.
+          {truncatedDisplayName} will receive 0.002 ETH on Base.
         </Text>
         
         <Spacer size="48" />
@@ -268,9 +286,16 @@ app.frame('/send', (c) => {
         </Box>
       </Box>
     ),
-    intents: [
-      <Button action="/continue">Send</Button>,
-    ],
+  })
+})
+
+
+app.transaction('/send-tx', (c) => {
+  // Send transaction response.
+  return c.send({
+    chainId: 'eip155:8453',
+    to: '0xc698865c38eC12b475AA55764d447566dd54c758',
+    value: parseEther('0.002'),
   })
 })
 
