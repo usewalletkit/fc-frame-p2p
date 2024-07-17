@@ -111,7 +111,7 @@ app.frame('/review', async (c) => {
     if (!byUsernameResponse.ok && !byAddressResponse.ok) {
       return c.error(
         { 
-          message: 'Response not OK!' 
+          message: 'User not found!' 
         }
       );
     }
@@ -127,7 +127,7 @@ app.frame('/review', async (c) => {
     if (!username && !address) {
       return c.error(
         { 
-          message: 'User not found woy!' 
+          message: 'User not found!' 
         }
       );
     }
