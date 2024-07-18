@@ -437,7 +437,7 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
           {displayName} will receive {ethAmount} ETH on Base.
         </Text>
         
-        <Spacer size="32" />
+        <Spacer size="48" />
 
         <Box grow flexDirection="row" gap="8">
 
