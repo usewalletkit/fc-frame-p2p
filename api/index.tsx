@@ -376,7 +376,11 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
 
   const user = data.users[0];
 
-  const displayName = user.display_name.length >= 10 ?  user.display_name.substring(0, 10) + "..." :  user.display_name;
+  const pfpUrl = user.pfp_url;
+
+  const displayName = user.display_name;
+
+  const username = user.username;
 
   return c.res({
     image: (
@@ -385,71 +389,104 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
           alignVertical="center"
           backgroundColor="bg"
           padding="32"
-          textAlign="left"
+          textAlign="center"
           height="100%"
       >
-        <Spacer size="16" />
 
-        <Text align="left" color="black" weight="600" size="48">
+        <Image
+              height="28"
+              objectFit="cover"
+              src="/images/primary.png"
+            />
+
+        <Box backgroundColor="bg" alignHorizontal="center">
+
+        <img
+              height="96"
+              width="96"
+              src={pfpUrl}
+              style={{
+                borderRadius: "15%",
+                objectFit: "cover"
+              }}
+            />
+
+        </Box>
+
+        <Spacer size="4" />
+
+        <Text align="center" color="black" weight="600" size="24">
           Pay {displayName}
         </Text>
 
         <Spacer size="10" />
 
-        <Text align="left" weight="400" color="black" size="20">
+        <Text align="center" color="grey" weight="400" size="14">
+          @{username}
+        </Text>
+
+        <Spacer size="16" />
+
+        <Text align="center" weight="400" color="grey" size="16">
           You are sending 5 USDC on Optimism.
         </Text>
 
-        <Text align="left" weight="400" color="black" size="20">
+        <Text align="center" weight="400" color="grey" size="16">
           {displayName} will receive {ethAmount} ETH on Base.
         </Text>
         
-        <Spacer size="48" />
+        <Spacer size="32" />
 
         <Box grow flexDirection="row" gap="8">
-          <Box backgroundColor="bg" flex="1" height="60">
-            <Text align="left" weight="400" color="grey" size="20">
-              You Send
+
+          <Box backgroundColor="bg" flex="1" height="60" alignHorizontal="center" />
+
+          <Box backgroundColor="bg" flex="2" height="60" alignHorizontal="center">
+            <Text align="right" weight="600" color="grey" size="12">
+              YOU SEND
             </Text>
 
-            <Spacer size="32" />
+            <Spacer size="8" />
             
             <Box flexDirection="row">
               <Image
-                  height="26"
+                  height="22"
                   objectFit="cover"
                   src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032"
                 />
               <Spacer size="8" />
-              <Text align="left" weight="600" color="black" size="24">
+              <Text align="center" weight="600" color="black" size="20">
                 5 USDC
               </Text>
             </Box>
           </Box>
 
-          <Box backgroundColor="bg" flex="1" alignHorizontal="center" justifyContent="center" height="60">
-            <Icon name="arrow-right" color="black" size="32" />
+          <Box backgroundColor="bg" flex="1" alignHorizontal="center" justifyContent="center" height="60" >
+            <Icon name="arrow-right" color="green" size="32" />
           </Box>
 
-          <Box backgroundColor="bg" flex="2" height="60">
-            <Text align="left" weight="400" color="grey" size="20">
-              They Receive
+          <Box backgroundColor="bg" flex="2" height="60" alignHorizontal="center" >
+            <Text align="center" weight="600" color="grey" size="12">
+              THEY RECEIVE
             </Text>
 
-            <Spacer size="32" />
+            <Spacer size="8" />
             
             <Box flexDirection="row">
               <Image
-                  height="26"
+                  height="22"
                   objectFit="cover"
                   src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"
                 />
               <Spacer size="8" />
-              <Text align="left" weight="600" color="black" size="24">
+              <Text align="center" weight="600" color="black" size="20">
                 {ethAmount} ETH
               </Text>
             </Box>
           </Box>
+
+          <Box backgroundColor="bg" flex="1" height="60" alignHorizontal="center" />
+
         </Box>
       </Box>
     ),
