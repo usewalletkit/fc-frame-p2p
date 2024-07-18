@@ -425,7 +425,7 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
           @{username}
         </Text>
 
-        <Spacer size="16" />
+        <Spacer size="10" />
 
         <Text align="center" weight="400" color="grey" size="16">
           You are sending 5 USDC on Optimism.
