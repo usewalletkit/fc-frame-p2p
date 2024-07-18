@@ -431,6 +431,8 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
           You are sending 5 USDC on Optimism.
         </Text>
 
+        <Spacer size="6" />
+
         <Text align="center" weight="400" color="grey" size="16">
           {displayName} will receive {ethAmount} ETH on Base.
         </Text>
