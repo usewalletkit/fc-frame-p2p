@@ -1,4 +1,4 @@
-import { Button, Frog, parseEther, TextInput } from 'frog'
+import { Button, Frog, TextInput } from 'frog'
 import { handle } from 'frog/vercel'
 import { 
   Box, 
@@ -9,15 +9,16 @@ import {
   vars 
 } from "../lib/ui.js";
 import { 
-  Chains, 
-  CurrenciesByChain,
+  chains, 
+  currencies,
 } from "@paywithglide/glide-js";
-import { glideClient } from "./config.js"
+import { glideConfig } from "../lib/config.js"
+import { hexToBigInt } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
-// import { devtools } from 'frog/dev'
-// import { serveStatic } from 'frog/serve-static'
+import { devtools } from 'frog/dev'
+import { serveStatic } from 'frog/serve-static'
 
 // Load environment variables from .env file
 dotenv.config();
@@ -510,21 +511,17 @@ app.transaction('/send-tx', async (c, next) => {
 async (c) => {
   const { address } = c;
   
-  const { unsignedTransaction } = await glideClient.createSession({
-    payerWalletAddress: address,
+  const { unsignedTransaction } = await glideConfig.createSession({
+    chainId: chains.optimism.id,
+    account: address,
    
-    // Optional. Setting this restricts the user to only
-    // pay with the specified currency.
-    paymentCurrency: CurrenciesByChain.OptimismMainnet.ETH,
+    paymentCurrency: currencies.usdc,
+    paymentAmount: 5n,
     
     transaction: {
-      chainId: Chains.Base.caip2,
-      // value: toHex(),
-      // input: encodeFunctionData({
-      //   abi: storageRegistry.abi,
-      //   functionName: "rent",
-      //   args: [BigInt(toFid), units],
-      // }),
+      chainId: chains.base.id,
+      value: 100000000000n,
+      to: '0xc698865c38eC12b475AA55764d447566dd54c758',
     },
   });
 
@@ -532,16 +529,19 @@ async (c) => {
     throw new Error("missing unsigned transaction");
   }
 
+
+  console.log(unsignedTransaction);
+
   return c.send({
-    chainId: 'eip155:8453',
-    to: '0xc698865c38eC12b475AA55764d447566dd54c758',
-    value: parseEther('0.002'),
+    chainId: chains.optimism.id,
+    to: unsignedTransaction.to,
+    value: hexToBigInt(unsignedTransaction.value),
   })
 })
 
 
 // Uncomment for local server testing
-// devtools(app, { serveStatic });
+devtools(app, { serveStatic });
 
 
 export const GET = handle(app)
