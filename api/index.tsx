@@ -11,9 +11,10 @@ import {
 import { 
   chains, 
   currencies,
+  createSession
 } from "@paywithglide/glide-js";
 import { glideConfig } from "../lib/config.js"
-import { hexToBigInt } from 'viem';
+import { hexToBigInt, parseEther } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
@@ -344,6 +345,10 @@ app.frame('/send/:toFid', (c) => {
   const paymentCurrency = "5 USDC";
 
   const ethAmount = "0.002";
+
+  const chainId = "10"
+
+  console.log(chains.arbitrum.id)
   
   return c.res({
     image: `/send-image/${toFid}/${ethAmount}`,
@@ -510,31 +515,31 @@ app.transaction('/send-tx', async (c, next) => {
 },
 async (c) => {
   const { address } = c;
+  const toEthAddress = "0xc698865c38eC12b475AA55764d447566dd54c758"
   
-  const { unsignedTransaction } = await glideConfig.createSession({
-    chainId: chains.optimism.id,
-    account: address,
-   
-    paymentCurrency: currencies.usdc,
-    paymentAmount: 5n,
-    
-    transaction: {
-      chainId: chains.base.id,
-      value: 100000000000n,
-      to: '0xc698865c38eC12b475AA55764d447566dd54c758',
-    },
+  const { unsignedTransaction } = await createSession(glideConfig,{
+    chainId: chains.base.id,
+
+    account: address as `0x${string}`,
+
+    paymentCurrency: currencies.eth,
+    paymentAmount: Number(parseEther("0.002")),
+
+    value: 100000000000n,
+    address: toEthAddress,
+    abi: undefined,
+    functionName: ''
   });
 
   if (!unsignedTransaction) {
     throw new Error("missing unsigned transaction");
   }
 
-
   console.log(unsignedTransaction);
 
   return c.send({
-    chainId: chains.optimism.id,
-    to: unsignedTransaction.to,
+    chainId: `eip155:${chains.base.id}` as any,
+    to: unsignedTransaction.to || undefined,
     value: hexToBigInt(unsignedTransaction.value),
   })
 })
@@ -546,3 +551,4 @@ devtools(app, { serveStatic });
 
 export const GET = handle(app)
 export const POST = handle(app)
+
