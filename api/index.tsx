@@ -15,7 +15,7 @@ import {
   CurrencyNotSupportedError
 } from "@paywithglide/glide-js";
 import { glideConfig } from "../lib/config.js"
-import { hexToBigInt } from 'viem';
+import { formatUnits, hexToBigInt, hexToString } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
@@ -579,7 +579,7 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId', async (
                 />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
-                0.002 ETH
+                0.002 ETH // help me to put ethValue here
               </Text>
             </Box>
           </Box>
@@ -614,7 +614,7 @@ async (c) => {
 
   console.log(`Payment Currency: ${paymentCurrencyOnChain}`);
 
-  const { unsignedTransaction } = await createSession(glideConfig, {
+  const { unsignedTransaction, sponsoredTransaction } = await createSession(glideConfig, {
     chainId: chains.base.id,
 
     account: address as `0x${string}`,
@@ -628,6 +628,18 @@ async (c) => {
   if (!unsignedTransaction) {
     throw new Error("missing unsigned transaction");
   }
+
+  if (!sponsoredTransaction) {
+    throw new Error("missing sponsored transaction");
+  }
+
+  const ethValueInHex = sponsoredTransaction.value;
+
+  console.log(`ETH Value in Hex: ${ethValueInHex}`);
+
+  const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
+
+  console.log(`ETH Value: ${ethValue}`);
 
   return c.send({
     chainId: unsignedTransaction.chainId as any,
