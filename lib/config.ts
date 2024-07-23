@@ -1,3 +1,8 @@
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
+
 import { createGlideConfig, chains } from "@paywithglide/glide-js";
 
 export const glideConfig = createGlideConfig({

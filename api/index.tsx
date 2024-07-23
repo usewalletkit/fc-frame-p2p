@@ -1,20 +1,21 @@
 import { Button, Frog, TextInput } from 'frog'
 import { handle } from 'frog/vercel'
-import { 
-  Box, 
-  Image, 
-  Icon, 
-  Text, 
-  Spacer, 
-  vars 
+import {
+  Box,
+  Image,
+  Icon,
+  Text,
+  Spacer,
+  vars
 } from "../lib/ui.js";
-import { 
-  chains, 
+import {
+  chains,
   currencies,
-  createSession
+  createSession,
+  CurrencyNotSupportedError
 } from "@paywithglide/glide-js";
 import { glideConfig } from "../lib/config.js"
-import { hexToBigInt, parseEther } from 'viem';
+import { hexToBigInt } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
@@ -112,8 +113,8 @@ app.frame('/review', async (c) => {
     // Check if at least one response is okay
     if (!byUsernameResponse.ok && !byAddressResponse.ok) {
       return c.error(
-        { 
-          message: 'User not found!' 
+        {
+          message: 'User not found!'
         }
       );
     }
@@ -128,8 +129,8 @@ app.frame('/review', async (c) => {
 
     if (!username && !address) {
       return c.error(
-        { 
-          message: 'User not found!' 
+        {
+          message: 'User not found!'
         }
       );
     }
@@ -138,9 +139,9 @@ app.frame('/review', async (c) => {
     const toFid = username?.fid || address?.fid;
 
     if (!toFid) {
-      return c.error( 
-        { 
-          message: 'User fid not found!' 
+      return c.error(
+        {
+          message: 'User fid not found!'
         }
       );
     }
@@ -155,8 +156,8 @@ app.frame('/review', async (c) => {
     });
   } catch (error) {
     return c.error(
-      { 
-        message: 'An error occurred while searching for the user.' 
+      {
+        message: 'An error occurred while searching for the user.'
       }
     );
   }
@@ -179,7 +180,7 @@ app.image('/review-image/:toFid', async (c) => {
   }
 
   const data = await response.json();
-  
+
   if (!data || !data.users || data.users.length === 0) {
     throw new Error(`User not found!`);
   }
@@ -203,7 +204,7 @@ app.image('/review-image/:toFid', async (c) => {
     }
     return num.toString();
   }
-  
+
   return c.res({
     headers: {
       'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
@@ -219,10 +220,10 @@ app.image('/review-image/:toFid', async (c) => {
       >
 
         <Box grow flexDirection="row" gap="8">
-          <Box 
-            backgroundColor="bg" 
-            flex="2" 
-            paddingRight="32" 
+          <Box
+            backgroundColor="bg"
+            flex="2"
+            paddingRight="32"
             display="flex"
             flexDirection="column"
             justifyContent="flex-end"
@@ -245,15 +246,15 @@ app.image('/review-image/:toFid', async (c) => {
 
             <Spacer size="10" />
 
-            <Box 
+            <Box
               borderRadius="14"
               padding="14"
               background="blue"
               height="60"
               width="100%"
             >
-              <Box 
-                flexDirection="row" 
+              <Box
+                flexDirection="row"
                 alignItems="flex-start"
                 display="flex"
               >
@@ -266,11 +267,11 @@ app.image('/review-image/:toFid', async (c) => {
             </Box>
           </Box>
 
-          <Box 
-            backgroundColor="bg" 
-            flex="1" 
-            paddingRight="36" 
-            display="flex" 
+          <Box
+            backgroundColor="bg"
+            flex="1"
+            paddingRight="36"
+            display="flex"
             flexDirection="column"
             justifyContent="flex-end"
           >
@@ -301,10 +302,10 @@ app.image('/review-image/:toFid', async (c) => {
 
             <Spacer size="10" />
 
-            <Box 
-              flexDirection="row" 
-              padding="0" 
-              alignItems="center" 
+            <Box
+              flexDirection="row"
+              padding="0"
+              alignItems="center"
               justifyContent="space-between"
               display="flex"
             >
@@ -337,30 +338,120 @@ app.image('/review-image/:toFid', async (c) => {
 })
 
 
-app.frame('/send/:toFid', (c) => {
+app.frame('/send/:toFid', async (c) => {
   const { inputText } = c;
-
   const { toFid } = c.req.param();
 
-  const paymentCurrency = "5 USDC";
+  // Regular expression to match the input text format with optional chain
+  const inputPattern = /(\d+(\.\d+)?\s+)(\w+)(?:\s+on\s+(\w+))?/i;
+  const match = inputText ? inputText.match(inputPattern) : null;
 
-  const ethAmount = "0.002";
-
-  const chainId = "10"
-
-  console.log(chains.arbitrum.id)
+  if (match) {
+    const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${toFid}`, {
+      method: 'GET',
+      headers: {
+          'accept': 'application/json',
+          'api_key': process.env.NEYNAR_API_KEY || '',
+      },
+    });
   
-  return c.res({
-    image: `/send-image/${toFid}/${ethAmount}`,
-    intents: [
-      <Button.Transaction target="/send-tx">Send</Button.Transaction>,
-    ],
-  })
-})
+    if (!response.ok) {
+      return c.error({
+        message: `HTTP error! Status: ${response.status}`,
+      });
+    }
+  
+    const data = await response.json();
+  
+    if (!data || !data.users || data.users.length === 0) {
+      return c.error({
+        message: `User not found!`,
+      });
+    }
+  
+    const user = data.users[0];
+  
+    const toEthAddress = user.verified_addresses.eth_addresses.toString().toLowerCase().split(',')[0];
+
+    const amount = match[1].trim();
+    const currency = match[3].toLowerCase();
+    const chain = match[4] ? match[4].toLowerCase() : 'base'; // Default to 'base' if no chain is provided
+
+    console.log(`Amount: ${amount}, Currency: ${currency}, Chain: ${chain}`);
+
+    // Set the variables based on the parsed input
+    const paymentAmount = amount;
+    const paymentCurrency = currency;
+    let parsedChain = chain;
+
+    // Add logic to handle the chain and currency as needed
+    let chainId;
+    switch (parsedChain) {
+      case 'eth':
+      case 'ethereum':
+      case 'mainnet':
+        chainId = 'ethereum';
+        break;
+      case 'base':
+        chainId = 'base';
+        break;
+      case 'optimism':
+      case 'op':
+        chainId = 'optimism';
+        break;
+      case 'arbitrum':
+      case 'arb':
+        chainId = 'arbitrum';
+        break;
+      case 'polygon':
+        chainId = 'polygon';
+        break;
+      // Add other chains as needed
+      default:
+        chainId = 'base';
+        break;
+    }
+
+    try {
+      const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on((chains as any)[chainId]);
+      if (!paymentCurrencyOnChain) {
+        return c.error({
+          message: 'Invalid currency or chain provided. Please try again.',
+        });
+      }
+    } catch (error) {
+      if (error instanceof CurrencyNotSupportedError) {
+        return c.error({
+          message: 'Currency not supported.',
+        });
+      } else {
+        return c.error({
+          message: 'An unexpected error occurred. Please try again.',
+        });
+      }
+    }
+
+    return c.res({
+      image: `/send-image/${toFid}/${paymentAmount}/${paymentCurrency}/${chainId}`,
+      intents: [
+        <Button.Transaction target={`/send-tx/${toEthAddress}/${paymentAmount}/${paymentCurrency}/${chainId}`}>Send</Button.Transaction>,
+      ],
+    });
+  } else {
+    return c.error({
+      message: 'Invalid input format. Please use the format: "<number> <currency> on <chain>"',
+    });
+  }
+});
 
 
-app.image('/send-image/:toFid/:ethAmount', async (c) => {
-  const { toFid, ethAmount } = c.req.param();
+
+app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId', async (c) => {
+  const { toFid, paymentAmount, paymentCurrency, chainId } = c.req.param();
+
+  const chainStr = chainId.charAt(0).toUpperCase() + chainId.slice(1);
+
+  const paymentCurrencyUpperCase = paymentCurrency.toUpperCase();
 
   const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${toFid}`, {
     method: 'GET',
@@ -375,7 +466,7 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
   }
 
   const data = await response.json();
-  
+
   if (!data || !data.users || data.users.length === 0) {
     throw new Error(`User not found!`);
   }
@@ -434,15 +525,15 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
         <Spacer size="10" />
 
         <Text align="center" weight="400" color="grey" size="16">
-          You are sending 5 USDC on Optimism.
+          You are sending {paymentAmount} {paymentCurrencyUpperCase} on {chainStr}.
         </Text>
 
         <Spacer size="6" />
 
         <Text align="center" weight="400" color="grey" size="16">
-          {displayName} will receive {ethAmount} ETH on Base.
+          {displayName} will receive 0 ETH on Base.
         </Text>
-        
+
         <Spacer size="32" />
 
         <Box grow flexDirection="row" gap="8">
@@ -455,7 +546,7 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
             </Text>
 
             <Spacer size="8" />
-            
+
             <Box flexDirection="row">
               <Image
                   height="22"
@@ -464,7 +555,7 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
                 />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
-                5 USDC
+                {paymentAmount} {paymentCurrencyUpperCase}
               </Text>
             </Box>
           </Box>
@@ -479,7 +570,7 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
             </Text>
 
             <Spacer size="8" />
-            
+
             <Box flexDirection="row">
               <Image
                   height="22"
@@ -488,7 +579,7 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
                 />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
-                {ethAmount} ETH
+                0.002 ETH
               </Text>
             </Box>
           </Box>
@@ -502,7 +593,7 @@ app.image('/send-image/:toFid/:ethAmount', async (c) => {
 })
 
 
-app.transaction('/send-tx', async (c, next) => {
+app.transaction('/send-tx/:toEthAddress/:paymentAmount/:paymentCurrency/:chainId', async (c, next) => {
   await next();
   const txParams = await c.res.json();
   txParams.attribution = false;
@@ -515,31 +606,33 @@ app.transaction('/send-tx', async (c, next) => {
 },
 async (c) => {
   const { address } = c;
-  const toEthAddress = "0xc698865c38eC12b475AA55764d447566dd54c758"
-  
-  const { unsignedTransaction } = await createSession(glideConfig,{
+  const { toEthAddress, paymentAmount, paymentCurrency, chainId } = c.req.param();
+
+  const totalPaymentAmount = Number(paymentAmount);
+
+  const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on((chains as any)[chainId]);
+
+  console.log(`Payment Currency: ${paymentCurrencyOnChain}`);
+
+  const { unsignedTransaction } = await createSession(glideConfig, {
     chainId: chains.base.id,
 
     account: address as `0x${string}`,
 
-    paymentCurrency: currencies.eth,
-    paymentAmount: Number(parseEther("0.002")),
+    paymentCurrency: paymentCurrencyOnChain,
+    paymentAmount: totalPaymentAmount,
 
-    value: 100000000000n,
-    address: toEthAddress,
-    abi: undefined,
-    functionName: ''
+    address: toEthAddress as `0x${string}`,
   });
 
   if (!unsignedTransaction) {
     throw new Error("missing unsigned transaction");
   }
 
-  console.log(unsignedTransaction);
-
   return c.send({
-    chainId: `eip155:${chains.base.id}` as any,
+    chainId: unsignedTransaction.chainId as any,
     to: unsignedTransaction.to || undefined,
+    data: unsignedTransaction.input || undefined,
     value: hexToBigInt(unsignedTransaction.value),
   })
 })
@@ -551,4 +644,3 @@ devtools(app, { serveStatic });
 
 export const GET = handle(app)
 export const POST = handle(app)
-
