@@ -12,10 +12,12 @@ import {
   chains,
   currencies,
   createSession,
-  CurrencyNotSupportedError
+  CurrencyNotSupportedError,
+  getSessionByPaymentTransaction,
+  waitForSession
 } from "@paywithglide/glide-js";
 import { glideConfig } from "../lib/config.js"
-import { formatUnits, hexToBigInt, hexToString } from 'viem';
+import { formatUnits, hexToBigInt } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
@@ -432,6 +434,7 @@ app.frame('/send/:toFid', async (c) => {
     }
 
     return c.res({
+      action: "/tx-status",
       image: `/send-image/${toFid}/${paymentAmount}/${paymentCurrency}/${chainId}`,
       intents: [
         <Button.Transaction target={`/send-tx/${toEthAddress}/${paymentAmount}/${paymentCurrency}/${chainId}`}>Send</Button.Transaction>,
@@ -648,6 +651,73 @@ async (c) => {
     value: hexToBigInt(unsignedTransaction.value),
   })
 })
+
+
+app.frame("/tx-status", async (c) => {
+  const { transactionId, buttonValue } = c;
+ 
+  // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
+  const txHash = transactionId || buttonValue;
+ 
+  if (!txHash) {
+    throw new Error("missing transaction hash");
+  }
+ 
+  try {
+    let session = await getSessionByPaymentTransaction(glideConfig, {
+      chainId: chains.base.id,
+      txHash,
+    });
+ 
+    // Wait for the session to complete. It can take a few seconds
+    session = await waitForSession(glideConfig, session.sessionId);
+ 
+    return c.res({
+      image: (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            fontSize: 64,
+            marginTop: "200px",
+          }}
+        >
+          Transaction completed!
+        </div>
+      ),
+      intents: [
+        <Button.Link
+          href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
+        >
+          View on BaseScan
+        </Button.Link>,
+      ],
+    });
+  } catch (e) {
+    // If the session is not found, it means the payment is still pending.
+    // Let the user know that the payment is pending and show a button to refresh the status.
+    return c.res({
+      image: (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            fontSize: 44,
+            marginTop: "200px",
+          }}
+        >
+          Waiting for payment confirmation..
+        </div>
+      ),
+ 
+      intents: [
+        <Button value={txHash} action="/tx-status">
+          Refresh
+        </Button>,
+      ],
+    });
+  }
+});
 
 
 // Uncomment for local server testing
