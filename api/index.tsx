@@ -1,5 +1,6 @@
 import { Button, Frog, TextInput } from 'frog'
 import { handle } from 'frog/vercel'
+import { neynar } from 'frog/middlewares'
 import {
   Box,
   Image,
@@ -13,8 +14,9 @@ import {
   currencies,
   createSession,
   CurrencyNotSupportedError,
-  getSessionByPaymentTransaction,
-  waitForSession
+  waitForSession,
+  getSessionById,
+  getSessionByPaymentTransaction
 } from "@paywithglide/glide-js";
 import { glideConfig } from "../lib/config.js"
 import { formatUnits, hexToBigInt } from 'viem';
@@ -46,7 +48,12 @@ export const app = new Frog({
   headers: {
     'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
   },
-})
+}).use(
+  neynar({
+    apiKey: process.env.NEYNAR_API_KEY || 'NEYNAR_FROG_FM',
+    features: ['interactor', 'cast'],
+  }),
+)
 
 
 app.frame('/', (c) => {
@@ -342,7 +349,10 @@ app.image('/review-image/:toFid', async (c) => {
 
 app.frame('/send/:toFid', async (c) => {
   const { inputText } = c;
+  const { verifiedAddresses } = c.var.interactor || {}
+
   const { toFid } = c.req.param();
+  const address = verifiedAddresses?.ethAddresses[0] || '';
 
   // Regular expression to match the input text format with optional chain
   const inputPattern = /(\d+(\.\d+)?\s+)(\w+)(?:\s+on\s+(\w+))?/i;
@@ -356,23 +366,23 @@ app.frame('/send/:toFid', async (c) => {
           'api_key': process.env.NEYNAR_API_KEY || '',
       },
     });
-  
+
     if (!response.ok) {
       return c.error({
         message: `HTTP error! Status: ${response.status}`,
       });
     }
-  
+
     const data = await response.json();
-  
+
     if (!data || !data.users || data.users.length === 0) {
       return c.error({
         message: `User not found!`,
       });
     }
-  
+
     const user = data.users[0];
-  
+
     const toEthAddress = user.verified_addresses.eth_addresses.toString().toLowerCase().split(',')[0];
 
     const amount = match[1].trim();
@@ -433,13 +443,33 @@ app.frame('/send/:toFid', async (c) => {
       }
     }
 
-    return c.res({
-      action: "/tx-status",
-      image: `/send-image/${toFid}/${paymentAmount}/${paymentCurrency}/${chainId}`,
-      intents: [
-        <Button.Transaction target={`/send-tx/${toEthAddress}/${paymentAmount}/${paymentCurrency}/${chainId}`}>Send</Button.Transaction>,
-      ],
-    });
+    // todo: Create a Glide session
+    const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on((chains as any)[chainId]);
+
+    try {
+      const { sessionId } = await createSession(glideConfig, {
+        chainId: chains.base.id,
+
+        account: address as `0x${string}`,
+
+        paymentCurrency: paymentCurrencyOnChain,
+        paymentAmount: Number(paymentAmount),
+
+        address: toEthAddress as `0x${string}`,
+      });
+
+      return c.res({
+        action: `/tx-status`,
+        image: `/send-image/${toFid}/${paymentAmount}/${paymentCurrency}/${chainId}/${sessionId}`,
+        intents: [
+          <Button.Transaction target={`/send-tx/${sessionId}`}>Send</Button.Transaction>,
+        ],
+      });
+    } catch (error) {
+      return c.error({
+        message: 'Failed to create Glide session. Please try again.',
+      });
+    }
   } else {
     return c.error({
       message: 'Invalid input format. Please use the format: "<number> <currency> on <chain>"',
@@ -448,9 +478,20 @@ app.frame('/send/:toFid', async (c) => {
 });
 
 
+app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionId', async (c) => {
+  const { toFid, paymentAmount, paymentCurrency, chainId, sessionId } = c.req.param();
+  
+  const { sponsoredTransaction } = await getSessionById(glideConfig, sessionId); 
 
-app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId', async (c) => {
-  const { toFid, paymentAmount, paymentCurrency, chainId } = c.req.param();
+  if (!sponsoredTransaction) {
+    throw new Error("missing sponsored transaction");
+  }
+
+  const ethValueInHex = sponsoredTransaction.value;
+
+  const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
+
+  const displayEthValue = Number(ethValue) < 0.00001 ? 'NaN' : Number(ethValue).toFixed(5);
 
   const chainStr = chainId.charAt(0).toUpperCase() + chainId.slice(1);
 
@@ -582,7 +623,7 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId', async (
                 />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
-                0.002 ETH // help me to put ethValue here
+                {displayEthValue} ETH
               </Text>
             </Box>
           </Box>
@@ -596,7 +637,7 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId', async (
 })
 
 
-app.transaction('/send-tx/:toEthAddress/:paymentAmount/:paymentCurrency/:chainId', async (c, next) => {
+app.transaction('/send-tx/:sessionId', async (c, next) => {
   await next();
   const txParams = await c.res.json();
   txParams.attribution = false;
@@ -608,41 +649,13 @@ app.transaction('/send-tx/:toEthAddress/:paymentAmount/:paymentCurrency/:chainId
   });
 },
 async (c) => {
-  const { address } = c;
-  const { toEthAddress, paymentAmount, paymentCurrency, chainId } = c.req.param();
+  const { sessionId } = c.req.param();
 
-  const totalPaymentAmount = Number(paymentAmount);
-
-  const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on((chains as any)[chainId]);
-
-  console.log(`Payment Currency: ${paymentCurrencyOnChain}`);
-
-  const { unsignedTransaction, sponsoredTransaction } = await createSession(glideConfig, {
-    chainId: chains.base.id,
-
-    account: address as `0x${string}`,
-
-    paymentCurrency: paymentCurrencyOnChain,
-    paymentAmount: totalPaymentAmount,
-
-    address: toEthAddress as `0x${string}`,
-  });
+  const { unsignedTransaction } = await getSessionById(glideConfig, sessionId)
 
   if (!unsignedTransaction) {
     throw new Error("missing unsigned transaction");
   }
-
-  if (!sponsoredTransaction) {
-    throw new Error("missing sponsored transaction");
-  }
-
-  const ethValueInHex = sponsoredTransaction.value;
-
-  console.log(`ETH Value in Hex: ${ethValueInHex}`);
-
-  const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
-
-  console.log(`ETH Value: ${ethValue}`);
 
   return c.send({
     chainId: unsignedTransaction.chainId as any,
@@ -655,23 +668,22 @@ async (c) => {
 
 app.frame("/tx-status", async (c) => {
   const { transactionId, buttonValue } = c;
- 
+
   // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
   const txHash = transactionId || buttonValue;
- 
+
   if (!txHash) {
     throw new Error("missing transaction hash");
   }
- 
+
   try {
     let session = await getSessionByPaymentTransaction(glideConfig, {
       chainId: chains.base.id,
-      txHash,
+      hash: txHash as any,
     });
- 
     // Wait for the session to complete. It can take a few seconds
     session = await waitForSession(glideConfig, session.sessionId);
- 
+
     return c.res({
       image: (
         <div
@@ -709,9 +721,9 @@ app.frame("/tx-status", async (c) => {
           Waiting for payment confirmation..
         </div>
       ),
- 
+
       intents: [
-        <Button value={txHash} action="/tx-status">
+        <Button value={txHash} action={`/tx-status`}>
           Refresh
         </Button>,
       ],
