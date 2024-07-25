@@ -354,6 +354,8 @@ app.frame('/send/:toFid', async (c) => {
   const { toFid } = c.req.param();
   const address = verifiedAddresses?.ethAddresses[0] || '';
 
+  console.log(`Sender Address: ${address}`);
+
   // Regular expression to match the input text format with optional chain
   const inputPattern = /(\d+(\.\d+)?\s+)(\w+)(?:\s+on\s+(\w+))?/i;
   const match = inputText ? inputText.match(inputPattern) : null;
@@ -384,6 +386,8 @@ app.frame('/send/:toFid', async (c) => {
     const user = data.users[0];
 
     const toEthAddress = user.verified_addresses.eth_addresses.toString().toLowerCase().split(',')[0];
+
+    console.log(`To Address: ${toEthAddress}`);
 
     const amount = match[1].trim();
     const currency = match[3].toLowerCase();
@@ -443,7 +447,6 @@ app.frame('/send/:toFid', async (c) => {
       }
     }
 
-    // todo: Create a Glide session
     const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on((chains as any)[chainId]);
 
     try {
@@ -753,7 +756,6 @@ app.frame("/tx-status", async (c) => {
         
       </Box>
       ),
-
       intents: [
         <Button value={txHash} action={`/tx-status`}>
           Refresh
