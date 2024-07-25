@@ -17,13 +17,9 @@ Get a project id by [signing up here](https://paywithglide.xyz/). It's free!
 4. Create a `.env` file in the root directory and add the following environment variables:
    ```plaintext
     GLIDE_PROJECT_ID = "YOUR_GLIDE_PROJECT_ID"
+    NEYNAR_API_KEY = "YOUR_NEYNAR_API_KEY"
+    BASE_URL_NEYNAR_V2 = "https://api.neynar.com/v2/farcaster"
    ```
-
-## Important
-Use this Glide version to make it works `@paywithglide/glide-js": "^0.6.2"`
-```
-npm install @paywithglide/glide-js@^0.6.2
-```
 
 ## Run the Frame
 ```
