@@ -686,16 +686,32 @@ app.frame("/tx-status", async (c) => {
 
     return c.res({
       image: (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            fontSize: 64,
-            marginTop: "200px",
-          }}
+        <Box
+          grow
+          alignVertical="center"
+          backgroundColor="bg"
+          padding="32"
+          textAlign="left"
+          height="100%"
         >
-          Transaction completed!
-        </div>
+
+          <Spacer size="14" />
+
+          <Image
+            height="32"
+            objectFit="cover"
+            src="/images/primary.png"
+          />
+
+          <Spacer size="96" />
+
+          <Text align="center" color="black" weight="600" size="24">
+            Transaction completed!
+          </Text>
+
+          <Spacer size="96" />
+
+        </Box>
       ),
       intents: [
         <Button.Link
@@ -710,16 +726,32 @@ app.frame("/tx-status", async (c) => {
     // Let the user know that the payment is pending and show a button to refresh the status.
     return c.res({
       image: (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            fontSize: 44,
-            marginTop: "200px",
-          }}
-        >
+      <Box
+        grow
+        alignVertical="center"
+        backgroundColor="bg"
+        padding="32"
+        textAlign="left"
+        height="100%"
+      >
+
+        <Spacer size="14" />
+
+        <Image
+          height="32"
+          objectFit="cover"
+          src="/images/primary.png"
+        />
+
+        <Spacer size="96" />
+
+        <Text align="center" color="black" weight="600" size="24">
           Waiting for payment confirmation..
-        </div>
+        </Text>
+
+        <Spacer size="96" />
+        
+      </Box>
       ),
 
       intents: [
