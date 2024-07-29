@@ -23,8 +23,8 @@ import { formatUnits, hexToBigInt } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
-import { devtools } from 'frog/dev'
-import { serveStatic } from 'frog/serve-static'
+// import { devtools } from 'frog/dev'
+// import { serveStatic } from 'frog/serve-static'
 
 // Load environment variables from .env file
 dotenv.config();
@@ -353,6 +353,7 @@ app.frame('/send/:toFid', async (c) => {
 
   const { toFid } = c.req.param();
   const address = verifiedAddresses?.ethAddresses[0] || '';
+  // const address = "0xc698865c38eC12b475AA55764d447566dd54c758";
 
   console.log(`Sender Address: ${address}`);
 
@@ -494,11 +495,29 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
 
   const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
 
-  const displayEthValue = Number(ethValue) < 0.00001 ? 'NaN' : Number(ethValue).toFixed(5);
+  const displayEthValue = Number(ethValue) < 0.00001 ? 'NaN' : Number(ethValue);
 
   const chainStr = chainId.charAt(0).toUpperCase() + chainId.slice(1);
 
   const paymentCurrencyUpperCase = paymentCurrency.toUpperCase();
+
+  let paymentCurrencyLogoUrl;
+  switch (paymentCurrencyUpperCase) {
+    case 'ETH':
+    case 'ETHEREUM':
+      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032';
+      break;
+    case 'USDC':
+      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
+      break;
+    case 'USDT':
+      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
+      break;
+    // Add other currencies as needed
+    default:
+      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032';
+      break;
+  }
 
   const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${toFid}`, {
     method: 'GET',
@@ -578,7 +597,7 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
         <Spacer size="6" />
 
         <Text align="center" weight="400" color="grey" size="16">
-          {displayName} will receive 0 ETH on Base.
+          {displayName} will receive {displayEthValue} ETH on Base.
         </Text>
 
         <Spacer size="32" />
@@ -598,7 +617,7 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
               <Image
                   height="22"
                   objectFit="cover"
-                  src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032"
+                  src={paymentCurrencyLogoUrl}
                 />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
@@ -680,10 +699,12 @@ app.frame("/tx-status", async (c) => {
   }
 
   try {
+    // Get the session by the payment transaction hash
     let session = await getSessionByPaymentTransaction(glideConfig, {
       chainId: chains.base.id,
-      hash: txHash as any,
+      hash: txHash as `0x${string}`,
     });
+
     // Wait for the session to complete. It can take a few seconds
     session = await waitForSession(glideConfig, session.sessionId);
 
@@ -767,7 +788,7 @@ app.frame("/tx-status", async (c) => {
 
 
 // Uncomment for local server testing
-devtools(app, { serveStatic });
+// devtools(app, { serveStatic });
 
 
 export const GET = handle(app)
