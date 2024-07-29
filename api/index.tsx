@@ -23,8 +23,8 @@ import { formatUnits, hexToBigInt } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
-// import { devtools } from 'frog/dev'
-// import { serveStatic } from 'frog/serve-static'
+import { devtools } from 'frog/dev'
+import { serveStatic } from 'frog/serve-static'
 
 // Load environment variables from .env file
 dotenv.config();
@@ -353,7 +353,6 @@ app.frame('/send/:toFid', async (c) => {
 
   const { toFid } = c.req.param();
   const address = verifiedAddresses?.ethAddresses[0] || '';
-  // const address = "0xc698865c38eC12b475AA55764d447566dd54c758";
 
   console.log(`Sender Address: ${address}`);
 
@@ -463,7 +462,7 @@ app.frame('/send/:toFid', async (c) => {
       });
 
       return c.res({
-        action: `/tx-status`,
+        action: `/tx-status/${chainId}`,
         image: `/send-image/${toFid}/${paymentAmount}/${paymentCurrency}/${chainId}/${sessionId}`,
         intents: [
           <Button.Transaction target={`/send-tx/${sessionId}`}>Send</Button.Transaction>,
@@ -694,20 +693,24 @@ async (c) => {
 })
 
 
-app.frame("/tx-status", async (c) => {
+app.frame("/tx-status/:chainId", async (c) => {
   const { transactionId, buttonValue } = c;
+
+  const { chainId } = c.req.param();
 
   // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
   const txHash = transactionId || buttonValue;
 
   if (!txHash) {
-    throw new Error("missing transaction hash");
+    return c.error({
+      message: 'Missing transaction hash, please try again.',
+    });
   }
 
   try {
     // Get the session by the payment transaction hash
     let session = await getSessionByPaymentTransaction(glideConfig, {
-      chainId: chains.base.id,
+      chainId: (chains as any)[chainId].id,
       hash: txHash as `0x${string}`,
     });
 
@@ -784,7 +787,7 @@ app.frame("/tx-status", async (c) => {
       </Box>
       ),
       intents: [
-        <Button value={txHash} action={`/tx-status`}>
+        <Button value={txHash} action={`/tx-status/${chainId}`}>
           Refresh
         </Button>,
       ],
@@ -794,7 +797,7 @@ app.frame("/tx-status", async (c) => {
 
 
 // Uncomment for local server testing
-// devtools(app, { serveStatic });
+devtools(app, { serveStatic });
 
 
 export const GET = handle(app)
