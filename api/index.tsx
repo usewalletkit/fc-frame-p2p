@@ -491,11 +491,17 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
     throw new Error("missing sponsored transaction");
   }
 
+  const displayPaymentAmount = Number(paymentAmount) < 0.00001 
+  ? 'NaN' 
+  : parseFloat(Number(paymentAmount).toFixed(5)).toString();
+
   const ethValueInHex = sponsoredTransaction.value;
 
   const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
 
-  const displayEthValue = Number(ethValue) < 0.00001 ? 'NaN' : Number(ethValue);
+  const displayReceivedEthValue = Number(ethValue) < 0.00001 
+  ? 'NaN' 
+  : parseFloat(Number(ethValue).toFixed(5)).toString();
 
   const chainStr = chainId.charAt(0).toUpperCase() + chainId.slice(1);
 
@@ -591,13 +597,13 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
         <Spacer size="10" />
 
         <Text align="center" weight="400" color="grey" size="16">
-          You are sending {paymentAmount} {paymentCurrencyUpperCase} on {chainStr}.
+          You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on {chainStr}.
         </Text>
 
         <Spacer size="6" />
 
         <Text align="center" weight="400" color="grey" size="16">
-          {displayName} will receive {displayEthValue} ETH on Base.
+          {displayName} will receive {displayReceivedEthValue} ETH on Base.
         </Text>
 
         <Spacer size="32" />
@@ -621,7 +627,7 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
                 />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
-                {paymentAmount} {paymentCurrencyUpperCase}
+                {displayPaymentAmount} {paymentCurrencyUpperCase}
               </Text>
             </Box>
           </Box>
@@ -645,7 +651,7 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
                 />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
-                {displayEthValue} ETH
+                {displayReceivedEthValue} ETH
               </Text>
             </Box>
           </Box>
