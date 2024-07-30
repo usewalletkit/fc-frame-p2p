@@ -295,7 +295,7 @@ app.image('/review-image/:toFid', async (c) => {
               >
                 <Icon name="info" color="white" size="18" />
                 <Spacer size="10" />
-                <Text align="left" weight="400" color="white" size="12">
+                <Text align="left" weight="400" color="white" size="14">
                   Enter the amount and the token you want to send
                 </Text>
               </Box>
@@ -405,6 +405,16 @@ app.frame('/send/:toFid', async (c) => {
     const paymentCurrency = currency;
     let parsedChain = chain;
 
+    switch (paymentCurrency) {
+      case 'usdc':
+        if (Number(paymentAmount) < 1) {
+          return c.error({
+            message: 'The minimum amount to send is 1 USDC.',
+          });
+        }
+        break;
+    }
+
     // Add logic to handle the chain and currency as needed
     let chainId;
     switch (parsedChain) {
@@ -473,7 +483,7 @@ app.frame('/send/:toFid', async (c) => {
       }
 
       const displayPaymentAmount = Number(paymentAmount) < 0.00001 
-      ? 'NaN' 
+      ? '<0.00001' 
       : parseFloat(Number(paymentAmount).toFixed(5)).toString();
 
       const ethValueInHex = sponsoredTransaction.value;
@@ -481,7 +491,7 @@ app.frame('/send/:toFid', async (c) => {
       const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
 
       const displayReceivedEthValue = Number(ethValue) < 0.00001 
-      ? 'NaN' 
+      ? '<0.00001' 
       : parseFloat(Number(ethValue).toFixed(5)).toString();
 
       const chainStr = chainId.charAt(0).toUpperCase() + chainId.slice(1);
