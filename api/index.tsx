@@ -38,6 +38,29 @@ const CAST_INTENS = `${baseUrl}?text=${encodeURIComponent(text)}&embeds[]=${enco
 
 const baseUrlNeynarV2 = process.env.BASE_URL_NEYNAR_V2;
 
+// Function to fetch user data by fid
+const fetchUserData = async (fid: any) => {
+  const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${fid}`, {
+    method: 'GET',
+    headers: {
+      'accept': 'application/json',
+      'api_key': process.env.NEYNAR_API_KEY || '',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (!data || !data.users || data.users.length === 0) {
+    throw new Error(`User not found!`);
+  }
+
+  return data.users[0];
+};
+
 
 export const app = new Frog({
   assetsPath: '/',
@@ -176,25 +199,7 @@ app.frame('/review', async (c) => {
 app.image('/review-image/:toFid', async (c) => {
   const { toFid } = c.req.param();
 
-  const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${toFid}`, {
-    method: 'GET',
-    headers: {
-        'accept': 'application/json',
-        'api_key': process.env.NEYNAR_API_KEY || '',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  if (!data || !data.users || data.users.length === 0) {
-    throw new Error(`User not found!`);
-  }
-
-  const user = data.users[0];
+  const user = await fetchUserData(toFid);
 
   const pfpUrl = user.pfp_url;
 
@@ -362,29 +367,7 @@ app.frame('/send/:toFid', async (c) => {
   const match = inputText ? inputText.match(inputPattern) : null;
 
   if (match) {
-    const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${toFid}`, {
-      method: 'GET',
-      headers: {
-          'accept': 'application/json',
-          'api_key': process.env.NEYNAR_API_KEY || '',
-      },
-    });
-
-    if (!response.ok) {
-      return c.error({
-        message: `HTTP error! Status: ${response.status}`,
-      });
-    }
-
-    const data = await response.json();
-
-    if (!data || !data.users || data.users.length === 0) {
-      return c.error({
-        message: `User not found!`,
-      });
-    }
-
-    const user = data.users[0];
+    const user = await fetchUserData(toFid);
 
     const toEthAddress = user.verified_addresses.eth_addresses.toString().toLowerCase().split(',')[0];
 
@@ -525,25 +508,7 @@ app.image('/send-image/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:ch
       break;
   }
 
-  const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${toFid}`, {
-    method: 'GET',
-    headers: {
-        'accept': 'application/json',
-        'api_key': process.env.NEYNAR_API_KEY || '',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  if (!data || !data.users || data.users.length === 0) {
-    throw new Error(`User not found!`);
-  }
-
-  const user = data.users[0];
+  const user = await fetchUserData(toFid);
 
   const pfpUrl = user.pfp_url;
 
@@ -750,31 +715,9 @@ app.image("/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceived
 
   const { fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
 
-  async function fetchUserData(fid: string) {
-    const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${fid}`, {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-        'api_key': process.env.NEYNAR_API_KEY || '',
-      },
-    });
-  
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-  
-    const data = await response.json();
-  
-    if (!data || !data.users || data.users.length === 0) {
-      throw new Error(`User not found!`);
-    }
-  
-    return data.users[0];
-  }
-  
   const fromUser = await fetchUserData(fromFid);
   const toUser = await fetchUserData(toFid);
-  
+
   const fromPfpUrl = fromUser.pfp_url;
   const toPfpUrl = toUser.pfp_url;
   const toDisplayName = toUser.display_name;
@@ -878,31 +821,9 @@ app.image("/tx-success/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEth
 
   const { fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
 
-  async function fetchUserData(fid: string) {
-    const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${fid}`, {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-        'api_key': process.env.NEYNAR_API_KEY || '',
-      },
-    });
-  
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-  
-    const data = await response.json();
-  
-    if (!data || !data.users || data.users.length === 0) {
-      throw new Error(`User not found!`);
-    }
-  
-    return data.users[0];
-  }
-  
   const fromUser = await fetchUserData(fromFid);
   const toUser = await fetchUserData(toFid);
-  
+
   const fromPfpUrl = fromUser.pfp_url;
   const toPfpUrl = toUser.pfp_url;
   const toDisplayName = toUser.display_name;
