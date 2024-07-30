@@ -780,9 +780,6 @@ app.image("/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceived
   const toDisplayName = toUser.display_name;
 
   return c.res({
-    headers: {
-      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
-    },
     image: (
       <Box
         grow
@@ -911,9 +908,6 @@ app.image("/tx-success/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEth
   const toDisplayName = toUser.display_name;
 
   return c.res({
-    headers: {
-      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
-    },
     image: (
       <Box
         grow
