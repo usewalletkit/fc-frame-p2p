@@ -731,8 +731,7 @@ app.image("/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceived
 
   const { fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
 
-  const fromUser = await fetchUserData(fromFid);
-  const toUser = await fetchUserData(toFid);
+  const [fromUser, toUser] = await Promise.all([fetchUserData(fromFid), fetchUserData(toFid)]);
 
   const fromPfpUrl = fromUser.pfp_url;
   const toPfpUrl = toUser.pfp_url;
