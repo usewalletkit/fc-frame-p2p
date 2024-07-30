@@ -512,20 +512,65 @@ app.image('/send-image/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:ch
   const { toFid, displayPaymentAmount, displayReceivedEthValue, chainStr, paymentCurrencyUpperCase } = c.req.param();
 
   let paymentCurrencyLogoUrl;
-  switch (paymentCurrencyUpperCase) {
-    case 'ETH':
-    case 'ETHEREUM':
+  switch (chainStr) {
+    case 'Ethereum':
       paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032';
+      switch (paymentCurrencyUpperCase) {
+        case 'USDC':
+          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
+          break;
+        case 'USDT':
+          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
+          break;
+      }
       break;
-    case 'USDC':
-      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
+    case 'Base':
+      paymentCurrencyLogoUrl = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-product/Base_Network_Logo.png';
+      switch (paymentCurrencyUpperCase) {
+        case 'USDC':
+          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
+          break;
+        case 'USDT':
+          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
+          break;
+      }
       break;
-    case 'USDT':
-      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
+    case 'Optimism':
+      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/optimism-ethereum-op-logo.png?v=032';
+      switch (paymentCurrencyUpperCase) {
+        case 'USDC':
+          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
+          break;
+        case 'USDT':
+          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
+          break;
+      }
       break;
+    case 'Arbitrum':
+    paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/arbitrum-arb-logo.png?v=032';
+    switch (paymentCurrencyUpperCase) {
+      case 'USDC':
+        paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
+        break;
+      case 'USDT':
+        paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
+        break;
+    }
+    break;
+    case 'Polygon':
+    paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=032';
+    switch (paymentCurrencyUpperCase) {
+      case 'USDC':
+        paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
+        break;
+      case 'USDT':
+        paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
+        break;
+    }
+    break;
     // Add other currencies as needed
     default:
-      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032';
+      paymentCurrencyLogoUrl = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-product/Base_Network_Logo.png';
       break;
   }
 
