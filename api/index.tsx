@@ -735,7 +735,7 @@ app.frame("/tx-status/:chainId/:fromFid/:toFid/:displayPaymentAmount/:displayRec
     // If the session is not found, it means the payment is still pending.
     // Let the user know that the payment is pending and show a button to refresh the status.
     return c.res({
-      image: `/tx-proccessing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+      image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
       intents: [
         <Button value={txHash} action={`/tx-status/${chainId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}>
           Refresh
