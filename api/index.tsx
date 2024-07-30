@@ -349,8 +349,9 @@ app.image('/review-image/:toFid', async (c) => {
 
 app.frame('/send/:toFid', async (c) => {
   const { inputText } = c;
-  const { verifiedAddresses } = c.var.interactor || {}
+  const { fid, verifiedAddresses } = c.var.interactor || {}
 
+  const fromFid = fid;
   const { toFid } = c.req.param();
   const address = verifiedAddresses?.ethAddresses[0] || '';
 
@@ -461,9 +462,31 @@ app.frame('/send/:toFid', async (c) => {
         address: toEthAddress as `0x${string}`,
       });
 
+      const { sponsoredTransaction } = await getSessionById(glideConfig, sessionId); 
+
+      if (!sponsoredTransaction) {
+        throw new Error("missing sponsored transaction");
+      }
+
+      const displayPaymentAmount = Number(paymentAmount) < 0.00001 
+      ? 'NaN' 
+      : parseFloat(Number(paymentAmount).toFixed(5)).toString();
+
+      const ethValueInHex = sponsoredTransaction.value;
+
+      const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
+
+      const displayReceivedEthValue = Number(ethValue) < 0.00001 
+      ? 'NaN' 
+      : parseFloat(Number(ethValue).toFixed(5)).toString();
+
+      const chainStr = chainId.charAt(0).toUpperCase() + chainId.slice(1);
+
+      const paymentCurrencyUpperCase = paymentCurrency.toUpperCase();
+
       return c.res({
-        action: `/tx-status/${chainId}`,
-        image: `/send-image/${toFid}/${paymentAmount}/${paymentCurrency}/${chainId}/${sessionId}`,
+        action: `/tx-status/${chainId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+        image: `/send-image/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${chainStr}/${paymentCurrencyUpperCase}`,
         intents: [
           <Button.Transaction target={`/send-tx/${sessionId}`}>Send</Button.Transaction>,
         ],
@@ -481,30 +504,8 @@ app.frame('/send/:toFid', async (c) => {
 });
 
 
-app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionId', async (c) => {
-  const { toFid, paymentAmount, paymentCurrency, chainId, sessionId } = c.req.param();
-  
-  const { sponsoredTransaction } = await getSessionById(glideConfig, sessionId); 
-
-  if (!sponsoredTransaction) {
-    throw new Error("missing sponsored transaction");
-  }
-
-  const displayPaymentAmount = Number(paymentAmount) < 0.00001 
-  ? 'NaN' 
-  : parseFloat(Number(paymentAmount).toFixed(5)).toString();
-
-  const ethValueInHex = sponsoredTransaction.value;
-
-  const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
-
-  const displayReceivedEthValue = Number(ethValue) < 0.00001 
-  ? 'NaN' 
-  : parseFloat(Number(ethValue).toFixed(5)).toString();
-
-  const chainStr = chainId.charAt(0).toUpperCase() + chainId.slice(1);
-
-  const paymentCurrencyUpperCase = paymentCurrency.toUpperCase();
+app.image('/send-image/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:chainStr/:paymentCurrencyUpperCase', async (c) => {
+  const { toFid, displayPaymentAmount, displayReceivedEthValue, chainStr, paymentCurrencyUpperCase } = c.req.param();
 
   let paymentCurrencyLogoUrl;
   switch (paymentCurrencyUpperCase) {
@@ -551,6 +552,9 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
   const username = user.username;
 
   return c.res({
+    headers: {
+      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+    },
     image: (
       <Box
           grow
@@ -632,7 +636,7 @@ app.image('/send-image/:toFid/:paymentAmount/:paymentCurrency/:chainId/:sessionI
           </Box>
 
           <Box backgroundColor="bg" flex="1" alignHorizontal="center" justifyContent="center" height="60" >
-            <Icon name="arrow-right" color="green" size="32" />
+            <Icon name="move-right" color="green" size="32" />
           </Box>
 
           <Box backgroundColor="bg" flex="2" height="60" alignHorizontal="center" >
@@ -750,7 +754,7 @@ app.frame("/tx-status/:chainId", async (c) => {
         <Button.Link
           href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
         >
-          View on BaseScan
+          View on Explorer
         </Button.Link>,
       ],
     });
@@ -793,6 +797,234 @@ app.frame("/tx-status/:chainId", async (c) => {
       ],
     });
   }
+});
+
+
+// app.frame("/test/:chainId/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:chainStr/:paymentCurrencyUpperCase", async (c) => {
+//   const { chainId, fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, chainStr, paymentCurrencyUpperCase } = c.req.param();
+
+app.frame("/test", async (c) => {
+  
+    return c.res({
+      image: '/tx-success',
+      intents: [
+        <Button action={`/test`}>
+          Refresh
+        </Button>,
+      ],
+    });
+});
+
+
+app.image("/tx-processing", async (c) => {
+
+  const displayPaymentAmount = "5";
+  const paymentCurrencyUpperCase = "USDC";
+  const displayReceivedEthValue = "0.002"
+
+  const displayName = "M ✦⁺";
+
+  return c.res({
+    headers: {
+      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+    },
+    image: (
+      <Box
+        grow
+        alignVertical="center"
+        backgroundColor="bg"
+        padding="32"
+        textAlign="center"
+        height="100%"
+      >
+
+      <Image
+            height="28"
+            objectFit="cover"
+            src="/images/primary.png"
+          />
+
+      <Box backgroundColor="bg" position="relative" display="flex" justifyContent="center" alignHorizontal="center" marginTop="20" marginLeft="10" >
+
+        <Box position="absolute" display="flex" justifyContent="center" backgroundColor="green"  >
+
+          <img
+            height="96"
+            width="96"
+            src="https://i.imgur.com/gd3xaKq.jpeg"
+            style={{
+              borderRadius: "50%",
+              objectFit: "cover",
+              position: "absolute",
+              right: 0,
+            }}
+          />
+
+          <img
+            height="96"
+            width="96"
+            src="https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/78e9e205-6721-4bc4-daab-4ddeb842e500/rectcrop3"
+            style={{
+              borderRadius: "50%",
+              objectFit: "cover",
+              position: "absolute",
+              left: "-30px",
+            }}
+          />
+
+        </Box>
+        
+      </Box>
+
+      <Spacer size="32" />
+
+      <Text align="center" color="black" weight="600" size="24">
+        Sent!
+      </Text>
+
+      <Spacer size="6" />
+
+      <Text align="center" color="grey" weight="600" size="14">
+       {displayPaymentAmount} {paymentCurrencyUpperCase} 
+      </Text>
+
+      <Spacer size="16" />
+
+      <Text align="center" weight="400" color="grey" size="16">
+        Your transaction is underway.
+      </Text>
+
+      <Spacer size="6" />
+
+      <Text align="center" weight="400" color="grey" size="16">
+        {displayName} will receive {displayReceivedEthValue} ETH on Base shortly..
+      </Text>
+
+      <Spacer size="32" />
+
+      <Text align="center" weight="600" color="grey" size="14">
+        STATUS
+      </Text>
+
+      <Spacer size="16" />
+
+      <Box flexDirection="row" alignItems="flex-start" justifyContent="center" >
+        <Icon name="clock" color="process" size="22" />
+        <Spacer size="6" />
+        <Text align="center" weight="600" color="black" size="20">
+          Processing
+        </Text>
+      </Box>
+      
+    </Box>
+    ),
+  });
+});
+
+
+app.image("/tx-success", async (c) => {
+
+  const displayPaymentAmount = "5";
+  const paymentCurrencyUpperCase = "USDC";
+  const displayReceivedEthValue = "0.002"
+
+  const displayName = "M ✦⁺";
+
+  return c.res({
+    headers: {
+      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+    },
+    image: (
+      <Box
+        grow
+        alignVertical="center"
+        backgroundColor="bg"
+        padding="32"
+        textAlign="center"
+        height="100%"
+      >
+
+      <Image
+            height="28"
+            objectFit="cover"
+            src="/images/primary.png"
+          />
+
+      <Box backgroundColor="bg" position="relative" display="flex" justifyContent="center" alignHorizontal="center" marginTop="20" marginLeft="10" >
+
+        <Box position="absolute" display="flex" justifyContent="center" backgroundColor="green"  >
+
+          <img
+            height="96"
+            width="96"
+            src="https://i.imgur.com/gd3xaKq.jpeg"
+            style={{
+              borderRadius: "50%",
+              objectFit: "cover",
+              position: "absolute",
+              right: 0,
+            }}
+          />
+
+          <img
+            height="96"
+            width="96"
+            src="https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/78e9e205-6721-4bc4-daab-4ddeb842e500/rectcrop3"
+            style={{
+              borderRadius: "50%",
+              objectFit: "cover",
+              position: "absolute",
+              left: "-30px",
+            }}
+          />
+
+        </Box>
+
+      </Box>
+
+      <Spacer size="32" />
+
+      <Text align="center" color="black" weight="600" size="24">
+        Sent!
+      </Text>
+
+      <Spacer size="6" />
+
+      <Text align="center" color="grey" weight="600" size="14">
+       {displayPaymentAmount} {paymentCurrencyUpperCase} 
+      </Text>
+
+      <Spacer size="16" />
+
+      <Text align="center" weight="400" color="grey" size="16">
+        Your transaction is underway.
+      </Text>
+
+      <Spacer size="6" />
+
+      <Text align="center" weight="400" color="grey" size="16">
+        {displayName} will receive {displayReceivedEthValue} ETH on Base shortly..
+      </Text>
+
+      <Spacer size="32" />
+
+      <Text align="center" weight="600" color="grey" size="14">
+        STATUS
+      </Text>
+
+      <Spacer size="16" />
+
+      <Box flexDirection="row" alignItems="flex-start" justifyContent="center" >
+        <Icon name="circle-check" color="green" size="22" />
+        <Spacer size="6" />
+        <Text align="center" weight="600" color="black" size="20">
+          Success
+        </Text>
+      </Box>
+      
+    </Box>
+    ),
+  });
 });
 
 
