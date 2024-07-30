@@ -23,8 +23,8 @@ import { formatUnits, hexToBigInt } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
-import { devtools } from 'frog/dev'
-import { serveStatic } from 'frog/serve-static'
+// import { devtools } from 'frog/dev'
+// import { serveStatic } from 'frog/serve-static'
 
 // Load environment variables from .env file
 dotenv.config();
@@ -697,10 +697,10 @@ async (c) => {
 })
 
 
-app.frame("/tx-status/:chainId", async (c) => {
+app.frame("/tx-status/:chainId/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
   const { transactionId, buttonValue } = c;
 
-  const { chainId } = c.req.param();
+  const { chainId, fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
 
   // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
   const txHash = transactionId || buttonValue;
@@ -722,34 +722,7 @@ app.frame("/tx-status/:chainId", async (c) => {
     session = await waitForSession(glideConfig, session.sessionId);
 
     return c.res({
-      image: (
-        <Box
-          grow
-          alignVertical="center"
-          backgroundColor="bg"
-          padding="32"
-          textAlign="left"
-          height="100%"
-        >
-
-          <Spacer size="14" />
-
-          <Image
-            height="32"
-            objectFit="cover"
-            src="/images/primary.png"
-          />
-
-          <Spacer size="96" />
-
-          <Text align="center" color="black" weight="600" size="24">
-            Transaction completed!
-          </Text>
-
-          <Spacer size="96" />
-
-        </Box>
-      ),
+      image: `/tx-success/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
       intents: [
         <Button.Link
           href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
@@ -762,36 +735,9 @@ app.frame("/tx-status/:chainId", async (c) => {
     // If the session is not found, it means the payment is still pending.
     // Let the user know that the payment is pending and show a button to refresh the status.
     return c.res({
-      image: (
-      <Box
-        grow
-        alignVertical="center"
-        backgroundColor="bg"
-        padding="32"
-        textAlign="left"
-        height="100%"
-      >
-
-        <Spacer size="14" />
-
-        <Image
-          height="32"
-          objectFit="cover"
-          src="/images/primary.png"
-        />
-
-        <Spacer size="96" />
-
-        <Text align="center" color="black" weight="600" size="24">
-          Waiting for payment confirmation..
-        </Text>
-
-        <Spacer size="96" />
-        
-      </Box>
-      ),
+      image: `/tx-proccessing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
       intents: [
-        <Button value={txHash} action={`/tx-status/${chainId}`}>
+        <Button value={txHash} action={`/tx-status/${chainId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}>
           Refresh
         </Button>,
       ],
@@ -800,29 +746,38 @@ app.frame("/tx-status/:chainId", async (c) => {
 });
 
 
-// app.frame("/test/:chainId/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:chainStr/:paymentCurrencyUpperCase", async (c) => {
-//   const { chainId, fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, chainStr, paymentCurrencyUpperCase } = c.req.param();
+app.image("/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
 
-app.frame("/test", async (c) => {
-  
-    return c.res({
-      image: '/tx-success',
-      intents: [
-        <Button action={`/test`}>
-          Refresh
-        </Button>,
-      ],
+  const { fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
+
+  async function fetchUserData(fid: string) {
+    const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${fid}`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'api_key': process.env.NEYNAR_API_KEY || '',
+      },
     });
-});
-
-
-app.image("/tx-processing", async (c) => {
-
-  const displayPaymentAmount = "5";
-  const paymentCurrencyUpperCase = "USDC";
-  const displayReceivedEthValue = "0.002"
-
-  const displayName = "M ✦⁺";
+  
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+  
+    const data = await response.json();
+  
+    if (!data || !data.users || data.users.length === 0) {
+      throw new Error(`User not found!`);
+    }
+  
+    return data.users[0];
+  }
+  
+  const fromUser = await fetchUserData(fromFid);
+  const toUser = await fetchUserData(toFid);
+  
+  const fromPfpUrl = fromUser.pfp_url;
+  const toPfpUrl = toUser.pfp_url;
+  const toDisplayName = toUser.display_name;
 
   return c.res({
     headers: {
@@ -851,7 +806,7 @@ app.image("/tx-processing", async (c) => {
           <img
             height="96"
             width="96"
-            src="https://i.imgur.com/gd3xaKq.jpeg"
+            src={fromPfpUrl}
             style={{
               borderRadius: "50%",
               objectFit: "cover",
@@ -863,7 +818,7 @@ app.image("/tx-processing", async (c) => {
           <img
             height="96"
             width="96"
-            src="https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/78e9e205-6721-4bc4-daab-4ddeb842e500/rectcrop3"
+            src={toPfpUrl}
             style={{
               borderRadius: "50%",
               objectFit: "cover",
@@ -897,7 +852,7 @@ app.image("/tx-processing", async (c) => {
       <Spacer size="6" />
 
       <Text align="center" weight="400" color="grey" size="16">
-        {displayName} will receive {displayReceivedEthValue} ETH on Base shortly..
+        {toDisplayName} will receive {displayReceivedEthValue} ETH on Base shortly..
       </Text>
 
       <Spacer size="32" />
@@ -922,13 +877,38 @@ app.image("/tx-processing", async (c) => {
 });
 
 
-app.image("/tx-success", async (c) => {
+app.image("/tx-success/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
 
-  const displayPaymentAmount = "5";
-  const paymentCurrencyUpperCase = "USDC";
-  const displayReceivedEthValue = "0.002"
+  const { fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
 
-  const displayName = "M ✦⁺";
+  async function fetchUserData(fid: string) {
+    const response = await fetch(`${baseUrlNeynarV2}/user/bulk?fids=${fid}`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'api_key': process.env.NEYNAR_API_KEY || '',
+      },
+    });
+  
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+  
+    const data = await response.json();
+  
+    if (!data || !data.users || data.users.length === 0) {
+      throw new Error(`User not found!`);
+    }
+  
+    return data.users[0];
+  }
+  
+  const fromUser = await fetchUserData(fromFid);
+  const toUser = await fetchUserData(toFid);
+  
+  const fromPfpUrl = fromUser.pfp_url;
+  const toPfpUrl = toUser.pfp_url;
+  const toDisplayName = toUser.display_name;
 
   return c.res({
     headers: {
@@ -957,7 +937,7 @@ app.image("/tx-success", async (c) => {
           <img
             height="96"
             width="96"
-            src="https://i.imgur.com/gd3xaKq.jpeg"
+            src={fromPfpUrl}
             style={{
               borderRadius: "50%",
               objectFit: "cover",
@@ -969,7 +949,7 @@ app.image("/tx-success", async (c) => {
           <img
             height="96"
             width="96"
-            src="https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/78e9e205-6721-4bc4-daab-4ddeb842e500/rectcrop3"
+            src={toPfpUrl}
             style={{
               borderRadius: "50%",
               objectFit: "cover",
@@ -1003,7 +983,7 @@ app.image("/tx-success", async (c) => {
       <Spacer size="6" />
 
       <Text align="center" weight="400" color="grey" size="16">
-        {displayName} will receive {displayReceivedEthValue} ETH on Base shortly..
+        {toDisplayName} will receive {displayReceivedEthValue} ETH on Base shortly..
       </Text>
 
       <Spacer size="32" />
@@ -1029,7 +1009,7 @@ app.image("/tx-success", async (c) => {
 
 
 // Uncomment for local server testing
-devtools(app, { serveStatic });
+// devtools(app, { serveStatic });
 
 
 export const GET = handle(app)
