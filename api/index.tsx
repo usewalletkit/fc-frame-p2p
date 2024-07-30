@@ -38,19 +38,19 @@ const CAST_INTENS = `${baseUrl}?text=${encodeURIComponent(text)}&embeds[]=${enco
 
 const baseUrlNeynarV2 = process.env.BASE_URL_NEYNAR_V2;
 
+// Cache to store user data
+const cache = new Map();
+
 // Function to fetch data with retries
 async function fetchWithRetry(url: string | URL | Request, options: RequestInit | undefined, retries = 5, delay = 1000) {
   for (let i = 0; i < retries; i++) {
     const response = await fetch(url, options);
-
     if (response.ok) {
       return response.json();
     }
-
     if (response.status === 429 && i < retries - 1) {
-      // Wait before retrying
       await new Promise(resolve => setTimeout(resolve, delay));
-      delay *= 2; // Exponential backoff
+      delay *= 2;
     } else {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -59,6 +59,10 @@ async function fetchWithRetry(url: string | URL | Request, options: RequestInit 
 
 // Function to fetch user data by fid
 async function fetchUserData(fid: string) {
+  if (cache.has(fid)) {
+    return cache.get(fid);
+  }
+
   const url = `${baseUrlNeynarV2}/user/bulk?fids=${fid}`;
   const options = {
     method: 'GET',
@@ -69,12 +73,13 @@ async function fetchUserData(fid: string) {
   };
 
   const data = await fetchWithRetry(url, options);
-
   if (!data || !data.users || data.users.length === 0) {
     throw new Error('User not found!');
   }
 
-  return data.users[0];
+  const user = data.users[0];
+  cache.set(fid, user);
+  return user;
 }
 
 
