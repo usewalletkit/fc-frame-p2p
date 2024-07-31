@@ -405,16 +405,6 @@ app.frame('/send/:toFid', async (c) => {
     const paymentCurrency = currency;
     let parsedChain = chain;
 
-    switch (paymentCurrency) {
-      case 'usdc':
-        if (Number(paymentAmount) < 1) {
-          return c.error({
-            message: 'The minimum amount to send is 1 USDC.',
-          });
-        }
-        break;
-    }
-
     // Add logic to handle the chain and currency as needed
     let chainId;
     switch (parsedChain) {
