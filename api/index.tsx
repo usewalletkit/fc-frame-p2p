@@ -745,9 +745,7 @@ app.frame("/tx-status/:sessionId/:fromFid/:toFid/:displayPaymentAmount/:displayR
     });
 
     if (!success) {
-      return c.error({
-        message: 'Failed to update payment transaction.',
-      });
+      throw new Error("failed to update payment transaction");
     }
 
     // Wait for the session to complete. It can take a few seconds
