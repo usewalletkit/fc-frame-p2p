@@ -792,7 +792,6 @@ app.frame("/tx-status/:sessionId/:fromFid/:toFid/:displayPaymentAmount/:displayR
 });
 
 
-
 app.image("/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
 
   const { fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
