@@ -14,7 +14,6 @@ import {
   currencies,
   createSession,
   CurrencyNotSupportedError,
-  waitForSession,
   getSessionById,
   updatePaymentTransaction
 } from "@paywithglide/glide-js";
@@ -748,22 +747,39 @@ app.frame("/tx-status/:sessionId/:fromFid/:toFid/:displayPaymentAmount/:displayR
       throw new Error("failed to update payment transaction");
     }
 
-    // Wait for the session to complete. It can take a few seconds
-    const completedSession = await waitForSession(glideConfig, sessionId);
+    // Get the current session state
+    const session = await getSessionById(glideConfig, sessionId);
 
-    return c.res({
-      image: `/tx-success/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
-      intents: [
-        <Button.Link
-          href={`https://basescan.org/tx/${completedSession.sponsoredTransactionHash}`}
-        >
-          View on Explorer
-        </Button.Link>,
-      ],
-    });
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    // If the session has a sponsoredTransactionHash, it means the transaction is complete
+    if (session.sponsoredTransactionHash) {
+      return c.res({
+        image: `/tx-success/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+        intents: [
+          <Button.Link
+            href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
+          >
+            View on Explorer
+          </Button.Link>,
+        ],
+      });
+    } else {
+      // If the session does not have a sponsoredTransactionHash, the payment is still pending
+      return c.res({
+        image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+        intents: [
+          <Button value={txHash} action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}>
+            Refresh
+          </Button>,
+        ],
+      });
+    }
   } catch (e) {
-    // If the session is not found, it means the payment is still pending.
-    // Let the user know that the payment is pending and show a button to refresh the status.
+    console.error('Error:', e);
+
     return c.res({
       image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
       intents: [
@@ -774,6 +790,7 @@ app.frame("/tx-status/:sessionId/:fromFid/:toFid/:displayPaymentAmount/:displayR
     });
   }
 });
+
 
 
 app.image("/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
