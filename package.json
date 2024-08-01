@@ -8,7 +8,7 @@
     "deploy": "vercel"
   },
   "dependencies": {
-    "@paywithglide/glide-js": "^0.9.8",
+    "@paywithglide/glide-js": "^0.9.10",
     "dotenv": "^16.4.5",
     "frog": "^0.14.2",
     "hono": "^4",

@@ -16,7 +16,7 @@ import {
   CurrencyNotSupportedError,
   waitForSession,
   getSessionById,
-  getSessionByPaymentTransaction
+  updatePaymentTransaction
 } from "@paywithglide/glide-js";
 import { glideConfig } from "../lib/config.js"
 import { formatUnits, hexToBigInt } from 'viem';
@@ -375,13 +375,10 @@ app.image('/review-image/:toFid', async (c) => {
 
 app.frame('/send/:toFid', async (c) => {
   const { inputText } = c;
-  const { fid, verifiedAddresses } = c.var.interactor || {}
+  const { fid } = c.var.interactor || {}
 
   const fromFid = fid;
   const { toFid } = c.req.param();
-  const address = verifiedAddresses?.ethAddresses[0] || '';
-
-  console.log(`Sender Address: ${address}`);
 
   // Regular expression to match the input text format with optional chain
   const inputPattern = /(\d+(\.\d+)?\s+)(\w+)(?:\s+on\s+(\w+))?/i;
@@ -458,8 +455,6 @@ app.frame('/send/:toFid', async (c) => {
       const { sessionId } = await createSession(glideConfig, {
         chainId: chains.base.id,
 
-        account: address as `0x${string}`,
-
         paymentCurrency: paymentCurrencyOnChain,
         paymentAmount: Number(paymentAmount),
 
@@ -489,7 +484,7 @@ app.frame('/send/:toFid', async (c) => {
       const paymentCurrencyUpperCase = paymentCurrency.toUpperCase();
 
       return c.res({
-        action: `/tx-status/${chainId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+        action: `/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
         image: `/send-image/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${chainStr}/${paymentCurrencyUpperCase}`,
         intents: [
           <Button.Transaction target={`/send-tx/${sessionId}`}>Send</Button.Transaction>,
@@ -728,10 +723,10 @@ async (c) => {
 })
 
 
-app.frame("/tx-status/:chainId/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
+app.frame("/tx-status/:sessionId/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
   const { transactionId, buttonValue } = c;
 
-  const { chainId, fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
+  const { sessionId, fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
 
   // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
   const txHash = transactionId || buttonValue;
@@ -743,20 +738,26 @@ app.frame("/tx-status/:chainId/:fromFid/:toFid/:displayPaymentAmount/:displayRec
   }
 
   try {
-    // Get the session by the payment transaction hash
-    let session = await getSessionByPaymentTransaction(glideConfig, {
-      chainId: (chains as any)[chainId].id,
+    // Check if the session is already completed
+    const { success } = await updatePaymentTransaction(glideConfig, {
+      sessionId: sessionId,
       hash: txHash as `0x${string}`,
     });
 
+    if (!success) {
+      return c.error({
+        message: 'Failed to update payment transaction.',
+      });
+    }
+
     // Wait for the session to complete. It can take a few seconds
-    session = await waitForSession(glideConfig, session.sessionId);
+    const completedSession = await waitForSession(glideConfig, sessionId);
 
     return c.res({
       image: `/tx-success/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
       intents: [
         <Button.Link
-          href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
+          href={`https://basescan.org/tx/${completedSession.sponsoredTransactionHash}`}
         >
           View on Explorer
         </Button.Link>,
@@ -768,7 +769,7 @@ app.frame("/tx-status/:chainId/:fromFid/:toFid/:displayPaymentAmount/:displayRec
     return c.res({
       image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
       intents: [
-        <Button value={txHash} action={`/tx-status/${chainId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}>
+        <Button value={txHash} action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}>
           Refresh
         </Button>,
       ],
