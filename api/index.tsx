@@ -22,8 +22,8 @@ import { formatUnits, hexToBigInt } from 'viem';
 import dotenv from 'dotenv';
 
 // Uncomment this packages to tested on local server
-// import { devtools } from 'frog/dev'
-// import { serveStatic } from 'frog/serve-static'
+import { devtools } from 'frog/dev'
+import { serveStatic } from 'frog/serve-static'
 
 // Load environment variables from .env file
 dotenv.config();
@@ -101,6 +101,17 @@ export const app = new Frog({
 
 app.frame('/', (c) => {
   return c.res({
+    image: '/initial-image',
+    intents: [
+      <TextInput placeholder="dwr.eth or 0xc69...c758" />,
+      <Button action="/review">Continue</Button>,
+    ],
+  })
+})
+
+
+app.image('/initial-image', (c) => {
+  return c.res({
     image: (
       <Box
           grow
@@ -132,10 +143,6 @@ app.frame('/', (c) => {
         </Box>
       </Box>
     ),
-    intents: [
-      <TextInput placeholder="dwr.eth or 0xc69...c758" />,
-      <Button action="/review">Continue</Button>,
-    ],
   })
 })
 
@@ -451,7 +458,7 @@ app.frame('/send/:toFid', async (c) => {
     const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on((chains as any)[chainId]);
 
     try {
-      const { sessionId } = await createSession(glideConfig, {
+      const { sessionId, sponsoredTransaction } = await createSession(glideConfig, {
         chainId: chains.base.id,
 
         paymentCurrency: paymentCurrencyOnChain,
@@ -459,8 +466,6 @@ app.frame('/send/:toFid', async (c) => {
 
         address: toEthAddress as `0x${string}`,
       });
-
-      const { sponsoredTransaction } = await getSessionById(glideConfig, sessionId); 
 
       if (!sponsoredTransaction) {
         throw new Error("missing sponsored transaction");
@@ -1003,7 +1008,7 @@ app.image("/tx-success/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEth
 
 
 // Uncomment for local server testing
-// devtools(app, { serveStatic });
+devtools(app, { serveStatic });
 
 
 export const GET = handle(app)
