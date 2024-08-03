@@ -120,7 +120,7 @@ app.image('/initial-image', (c) => {
           padding="32"
           textAlign="left"
           height="100%"
-      >
+        >
         <Spacer size="14" />
         <Image
           height="32"
@@ -252,14 +252,13 @@ app.image('/review-image/:toFid', async (c) => {
     },
     image: (
       <Box
-          grow
-          alignVertical="center"
-          backgroundColor="bg"
-          padding="32"
-          textAlign="left"
-          height="100%"
+        grow
+        alignVertical="center"
+        backgroundColor="bg"
+        padding="32"
+        textAlign="left"
+        height="100%"
       >
-
         <Box grow flexDirection="row" gap="8">
           <Box
             backgroundColor="bg"
@@ -275,7 +274,6 @@ app.image('/review-image/:toFid', async (c) => {
               objectFit="cover"
               src="/images/primary.png"
             />
-
             <Spacer size="64" />
             <Text align="left" color="black" weight="600" size="24">
               Pay {displayName}
@@ -284,9 +282,7 @@ app.image('/review-image/:toFid', async (c) => {
             <Text align="left" weight="400" color="grey" size="16">
               Send any token to {displayName} and they will receive ETH on Base.
             </Text>
-
             <Spacer size="10" />
-
             <Box
               borderRadius="14"
               padding="14"
@@ -294,11 +290,7 @@ app.image('/review-image/:toFid', async (c) => {
               height="60"
               width="100%"
             >
-              <Box
-                flexDirection="row"
-                alignItems="flex-start"
-                display="flex"
-              >
+              <Box flexDirection="row" alignItems="flex-start" display="flex">
                 <Icon name="info" color="white" size="18" />
                 <Spacer size="10" />
                 <Text align="left" weight="400" color="white" size="14">
@@ -307,7 +299,6 @@ app.image('/review-image/:toFid', async (c) => {
               </Box>
             </Box>
           </Box>
-
           <Box
             backgroundColor="bg"
             flex="1"
@@ -317,19 +308,16 @@ app.image('/review-image/:toFid', async (c) => {
             justifyContent="flex-end"
           >
             <Spacer size="10" />
-
             <img
               height="160"
               width="160"
               src={pfpUrl}
               style={{
                 borderRadius: "15%",
-                objectFit: "cover"
+                objectFit: "cover",
               }}
             />
-
             <Spacer size="6" />
-
             <Text align="left" weight="600" color="black" size="18">
               {displayName}
             </Text>
@@ -340,9 +328,7 @@ app.image('/review-image/:toFid', async (c) => {
             <Text align="left" weight="400" color="black" size="12">
               {bio}
             </Text>
-
             <Spacer size="10" />
-
             <Box
               flexDirection="row"
               padding="0"
@@ -355,28 +341,27 @@ app.image('/review-image/:toFid', async (c) => {
                   {formatNumber(following)}
                 </Text>
                 <Spacer size="4" />
-                <Text align="left" color="grey" size="12">Following</Text>
+                <Text align="left" color="grey" size="12">
+                  Following
+                </Text>
               </Box>
-
               <Spacer size="10" />
-
               <Box flexDirection="row" alignItems="center" display="flex">
                 <Text align="left" weight="600" color="black" size="12">
                   {formatNumber(followers)}
                 </Text>
                 <Spacer size="4" />
-                <Text align="left" color="grey" size="12">Followers</Text>
+                <Text align="left" color="grey" size="12">
+                  Followers
+                </Text>
               </Box>
             </Box>
-
           </Box>
-
         </Box>
-
       </Box>
     ),
-  })
-})
+  });
+});
 
 
 app.frame('/send/:toFid', async (c) => {
@@ -587,114 +572,109 @@ app.image('/send-image/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:ch
     },
     image: (
       <Box
-          grow
-          alignVertical="center"
-          backgroundColor="bg"
-          padding="32"
-          textAlign="center"
-          height="100%"
+        grow
+        alignVertical="center"
+        backgroundColor="bg"
+        padding="32"
+        textAlign="center"
+        height="100%"
       >
-
         <Image
-              height="28"
-              objectFit="cover"
-              src="/images/primary.png"
-            />
-
+          height="28"
+          objectFit="cover"
+          src="/images/primary.png"
+        />
+  
         <Box backgroundColor="bg" alignHorizontal="center">
-
-        <img
-              height="96"
-              width="96"
-              src={pfpUrl}
-              style={{
-                borderRadius: "15%",
-                objectFit: "cover"
-              }}
-            />
-
+          <img
+            height="96"
+            width="96"
+            src={pfpUrl}
+            style={{
+              borderRadius: "15%",
+              objectFit: "cover",
+            }}
+          />
         </Box>
-
+  
         <Spacer size="4" />
-
+  
         <Text align="center" color="black" weight="600" size="24">
           Pay {displayName}
         </Text>
-
+  
         <Spacer size="10" />
-
+  
         <Text align="center" color="grey" weight="400" size="14">
           @{username}
         </Text>
-
+  
         <Spacer size="10" />
-
+  
         <Text align="center" weight="400" color="grey" size="16">
           You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on {chainStr}.
         </Text>
-
+  
         <Spacer size="6" />
-
+  
         <Text align="center" weight="400" color="grey" size="16">
           {displayName} will receive {displayReceivedEthValue} ETH on Base.
         </Text>
-
+  
         <Spacer size="32" />
-
+  
         <Box grow flexDirection="row" gap="8">
-
           <Box backgroundColor="bg" flex="1" height="60" alignHorizontal="center" />
-
+  
           <Box backgroundColor="bg" flex="2" height="60" alignHorizontal="center">
             <Text align="right" weight="600" color="grey" size="12">
               YOU SEND
             </Text>
-
+  
             <Spacer size="8" />
-
+  
             <Box flexDirection="row">
               <Image
-                  height="22"
-                  objectFit="cover"
-                  src={paymentCurrencyLogoUrl}
-                />
+                height="22"
+                objectFit="cover"
+                src={paymentCurrencyLogoUrl}
+              />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
                 {displayPaymentAmount} {paymentCurrencyUpperCase}
               </Text>
             </Box>
           </Box>
-
-          <Box backgroundColor="bg" flex="1" alignHorizontal="center" justifyContent="center" height="60" >
+  
+          <Box backgroundColor="bg" flex="1" alignHorizontal="center" justifyContent="center" height="60">
             <Icon name="move-right" color="green" size="32" />
           </Box>
-
-          <Box backgroundColor="bg" flex="2" height="60" alignHorizontal="center" >
+  
+          <Box backgroundColor="bg" flex="2" height="60" alignHorizontal="center">
             <Text align="center" weight="600" color="grey" size="12">
               THEY RECEIVE
             </Text>
-
+  
             <Spacer size="8" />
-
+  
             <Box flexDirection="row">
               <Image
-                  height="22"
-                  objectFit="cover"
-                  src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"
-                />
+                height="22"
+                objectFit="cover"
+                src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"
+              />
               <Spacer size="8" />
               <Text align="center" weight="600" color="black" size="20">
                 {displayReceivedEthValue} ETH
               </Text>
             </Box>
           </Box>
-
+  
           <Box backgroundColor="bg" flex="1" height="60" alignHorizontal="center" />
-
         </Box>
       </Box>
     ),
-  })
+  });  
 })
 
 
@@ -817,88 +797,95 @@ app.image("/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceived
         textAlign="center"
         height="100%"
       >
-
-      <Image
-            height="28"
-            objectFit="cover"
-            src="/images/primary.png"
-          />
-
-      <Box backgroundColor="bg" position="relative" display="flex" justifyContent="center" alignHorizontal="center" marginTop="20" marginLeft="10" >
-
-        <Box position="absolute" display="flex" justifyContent="center" backgroundColor="green"  >
-
-          <img
-            height="96"
-            width="96"
-            src={fromPfpUrl}
-            style={{
-              borderRadius: "50%",
-              objectFit: "cover",
-              position: "absolute",
-              right: 0,
-            }}
-          />
-
-          <img
-            height="96"
-            width="96"
-            src={toPfpUrl}
-            style={{
-              borderRadius: "50%",
-              objectFit: "cover",
-              position: "absolute",
-              left: "-30px",
-            }}
-          />
-
+        <Image
+          height="28"
+          objectFit="cover"
+          src="/images/primary.png"
+        />
+  
+        <Box
+          backgroundColor="bg"
+          position="relative"
+          display="flex"
+          justifyContent="center"
+          alignHorizontal="center"
+          marginTop="20"
+          marginLeft="10"
+        >
+          <Box
+            position="absolute"
+            display="flex"
+            justifyContent="center"
+            backgroundColor="green"
+          >
+            <img
+              height="96"
+              width="96"
+              src={fromPfpUrl}
+              style={{
+                borderRadius: "50%",
+                objectFit: "cover",
+                position: "absolute",
+                right: 0,
+              }}
+            />
+  
+            <img
+              height="96"
+              width="96"
+              src={toPfpUrl}
+              style={{
+                borderRadius: "50%",
+                objectFit: "cover",
+                position: "absolute",
+                left: "-30px",
+              }}
+            />
+          </Box>
         </Box>
-        
-      </Box>
-
-      <Spacer size="32" />
-
-      <Text align="center" color="black" weight="600" size="24">
-        Sent!
-      </Text>
-
-      <Spacer size="6" />
-
-      <Text align="center" color="grey" weight="600" size="14">
-       {displayPaymentAmount} {paymentCurrencyUpperCase} 
-      </Text>
-
-      <Spacer size="16" />
-
-      <Text align="center" weight="400" color="grey" size="16">
-        Your transaction is underway.
-      </Text>
-
-      <Spacer size="6" />
-
-      <Text align="center" weight="400" color="grey" size="16">
-        {toDisplayName} will receive {displayReceivedEthValue} ETH on Base shortly..
-      </Text>
-
-      <Spacer size="32" />
-
-      <Text align="center" weight="600" color="grey" size="14">
-        STATUS
-      </Text>
-
-      <Spacer size="16" />
-
-      <Box flexDirection="row" alignItems="flex-start" justifyContent="center" >
-        <Icon name="clock" color="process" size="22" />
-        <Spacer size="6" />
-        <Text align="center" weight="600" color="black" size="20">
-          Processing
+  
+        <Spacer size="32" />
+  
+        <Text align="center" color="black" weight="600" size="24">
+          Sent!
         </Text>
+  
+        <Spacer size="6" />
+  
+        <Text align="center" color="grey" weight="600" size="14">
+          {displayPaymentAmount} {paymentCurrencyUpperCase}
+        </Text>
+  
+        <Spacer size="16" />
+  
+        <Text align="center" weight="400" color="grey" size="16">
+          Your transaction is underway.
+        </Text>
+  
+        <Spacer size="6" />
+  
+        <Text align="center" weight="400" color="grey" size="16">
+          {toDisplayName} will receive {displayReceivedEthValue} ETH on Base shortly.
+        </Text>
+  
+        <Spacer size="32" />
+  
+        <Text align="center" weight="600" color="grey" size="14">
+          STATUS
+        </Text>
+  
+        <Spacer size="16" />
+  
+        <Box flexDirection="row" alignItems="flex-start" justifyContent="center">
+          <Icon name="clock" color="process" size="22" />
+          <Spacer size="6" />
+          <Text align="center" weight="600" color="black" size="20">
+            Processing
+          </Text>
+        </Box>
       </Box>
-      
-    </Box>
     ),
-  });
+  });  
 });
 
 
@@ -922,88 +909,95 @@ app.image("/tx-success/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEth
         textAlign="center"
         height="100%"
       >
-
-      <Image
-            height="28"
-            objectFit="cover"
-            src="/images/primary.png"
-          />
-
-      <Box backgroundColor="bg" position="relative" display="flex" justifyContent="center" alignHorizontal="center" marginTop="20" marginLeft="10" >
-
-        <Box position="absolute" display="flex" justifyContent="center" backgroundColor="green"  >
-
-          <img
-            height="96"
-            width="96"
-            src={fromPfpUrl}
-            style={{
-              borderRadius: "50%",
-              objectFit: "cover",
-              position: "absolute",
-              right: 0,
-            }}
-          />
-
-          <img
-            height="96"
-            width="96"
-            src={toPfpUrl}
-            style={{
-              borderRadius: "50%",
-              objectFit: "cover",
-              position: "absolute",
-              left: "-30px",
-            }}
-          />
-
+        <Image
+          height="28"
+          objectFit="cover"
+          src="/images/primary.png"
+        />
+  
+        <Box
+          backgroundColor="bg"
+          position="relative"
+          display="flex"
+          justifyContent="center"
+          alignHorizontal="center"
+          marginTop="20"
+          marginLeft="10"
+        >
+          <Box
+            position="absolute"
+            display="flex"
+            justifyContent="center"
+            backgroundColor="green"
+          >
+            <img
+              height="96"
+              width="96"
+              src={fromPfpUrl}
+              style={{
+                borderRadius: "50%",
+                objectFit: "cover",
+                position: "absolute",
+                right: 0,
+              }}
+            />
+  
+            <img
+              height="96"
+              width="96"
+              src={toPfpUrl}
+              style={{
+                borderRadius: "50%",
+                objectFit: "cover",
+                position: "absolute",
+                left: "-30px",
+              }}
+            />
+          </Box>
         </Box>
-
-      </Box>
-
-      <Spacer size="32" />
-
-      <Text align="center" color="black" weight="600" size="24">
-        Sent!
-      </Text>
-
-      <Spacer size="6" />
-
-      <Text align="center" color="grey" weight="600" size="14">
-       {displayPaymentAmount} {paymentCurrencyUpperCase} 
-      </Text>
-
-      <Spacer size="16" />
-
-      <Text align="center" weight="400" color="grey" size="16">
-        Your transaction is underway.
-      </Text>
-
-      <Spacer size="6" />
-
-      <Text align="center" weight="400" color="grey" size="16">
-        {toDisplayName} will receive {displayReceivedEthValue} ETH on Base shortly..
-      </Text>
-
-      <Spacer size="32" />
-
-      <Text align="center" weight="600" color="grey" size="14">
-        STATUS
-      </Text>
-
-      <Spacer size="16" />
-
-      <Box flexDirection="row" alignItems="flex-start" justifyContent="center" >
-        <Icon name="circle-check" color="green" size="22" />
-        <Spacer size="6" />
-        <Text align="center" weight="600" color="black" size="20">
-          Success
+  
+        <Spacer size="32" />
+  
+        <Text align="center" color="black" weight="600" size="24">
+          Sent!
         </Text>
+  
+        <Spacer size="6" />
+  
+        <Text align="center" color="grey" weight="600" size="14">
+          {displayPaymentAmount} {paymentCurrencyUpperCase}
+        </Text>
+  
+        <Spacer size="16" />
+  
+        <Text align="center" weight="400" color="grey" size="16">
+          Your transaction is underway.
+        </Text>
+  
+        <Spacer size="6" />
+  
+        <Text align="center" weight="400" color="grey" size="16">
+          {toDisplayName} will receive {displayReceivedEthValue} ETH on Base shortly.
+        </Text>
+  
+        <Spacer size="32" />
+  
+        <Text align="center" weight="600" color="grey" size="14">
+          STATUS
+        </Text>
+  
+        <Spacer size="16" />
+  
+        <Box flexDirection="row" alignItems="flex-start" justifyContent="center">
+          <Icon name="circle-check" color="green" size="22" />
+          <Spacer size="6" />
+          <Text align="center" weight="600" color="black" size="20">
+            Success
+          </Text>
+        </Box>
       </Box>
-      
-    </Box>
     ),
-  });
+  });  
 });
 
 
