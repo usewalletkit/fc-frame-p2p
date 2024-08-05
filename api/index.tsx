@@ -1,25 +1,18 @@
-import { Button, Frog, TextInput } from 'frog'
-import { handle } from 'frog/vercel'
-import { neynar } from 'frog/middlewares'
-import {
-  Box,
-  Image,
-  Icon,
-  Text,
-  Spacer,
-  vars
-} from "../lib/ui.js";
+import { Button, Frog, TextInput } from "frog";
+import { handle } from "frog/vercel";
+import { neynar } from "frog/middlewares";
+import { Box, Image, Icon, Text, Spacer, vars } from "../lib/ui.js";
 import {
   chains,
   currencies,
   createSession,
   CurrencyNotSupportedError,
   getSessionById,
-  updatePaymentTransaction
+  updatePaymentTransaction,
 } from "@paywithglide/glide-js";
-import { glideConfig } from "../lib/config.js"
-import { formatUnits, hexToBigInt } from 'viem';
-import dotenv from 'dotenv';
+import { glideConfig } from "../lib/config.js";
+import { formatUnits, hexToBigInt } from "viem";
+import dotenv from "dotenv";
 
 // Uncomment this packages to tested on local server
 // import { devtools } from 'frog/dev'
@@ -28,9 +21,9 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file
 dotenv.config();
 
-
 const baseUrl = "https://warpcast.com/~/compose";
-const text = "@paywithglide P2P Transfer 💸\n\nFrame by @tusharsoni.eth & @0x94t3z.eth";
+const text =
+  "@paywithglide P2P Transfer 💸\n\nFrame by @tusharsoni.eth & @0x94t3z.eth";
 const embedUrl = "https://paywithglide.vercel.app/api/frame";
 
 const CAST_INTENS = `${baseUrl}?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`;
@@ -41,14 +34,19 @@ const baseUrlNeynarV2 = process.env.BASE_URL_NEYNAR_V2;
 const cache = new Map();
 
 // Function to fetch data with retries
-async function fetchWithRetry(url: string | URL | Request, options: RequestInit | undefined, retries = 5, delay = 1000) {
+async function fetchWithRetry(
+  url: string | URL | Request,
+  options: RequestInit | undefined,
+  retries = 5,
+  delay = 1000,
+) {
   for (let i = 0; i < retries; i++) {
     const response = await fetch(url, options);
     if (response.ok) {
       return response.json();
     }
     if (response.status === 429 && i < retries - 1) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
       delay *= 2;
     } else {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -64,16 +62,16 @@ async function fetchUserData(fid: string) {
 
   const url = `${baseUrlNeynarV2}/user/bulk?fids=${fid}`;
   const options = {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'accept': 'application/json',
-      'api_key': process.env.NEYNAR_API_KEY || '',
+      accept: "application/json",
+      api_key: process.env.NEYNAR_API_KEY || "",
     },
   };
 
   const data = await fetchWithRetry(url, options);
   if (!data || !data.users || data.users.length === 0) {
-    throw new Error('User not found!');
+    throw new Error("User not found!");
   }
 
   const user = data.users[0];
@@ -81,128 +79,127 @@ async function fetchUserData(fid: string) {
   return user;
 }
 
-
 export const app = new Frog({
-  assetsPath: '/',
-  basePath: '/api/frame',
+  assetsPath: "/",
+  basePath: "/api/frame",
   ui: { vars },
-  title: 'PayWithGlide.xyz',
+  title: "PayWithGlide.xyz",
   browserLocation: CAST_INTENS,
   headers: {
-    'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+    "cache-control":
+      "no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0",
   },
 }).use(
   neynar({
-    apiKey: process.env.NEYNAR_API_KEY || 'NEYNAR_FROG_FM',
-    features: ['interactor', 'cast'],
+    apiKey: process.env.NEYNAR_API_KEY || "NEYNAR_FROG_FM",
+    features: ["interactor", "cast"],
   }),
-)
+);
 
-
-app.frame('/', (c) => {
+app.frame("/", (c) => {
   return c.res({
-    image: '/initial-image',
+    image: "/initial-image",
     intents: [
       <TextInput placeholder="dwr.eth or 0xc69...c758" />,
       <Button action="/review">Continue</Button>,
     ],
-  })
-})
+  });
+});
 
-
-app.image('/initial-image', (c) => {
+app.image("/initial-image", (c) => {
   return c.res({
     image: (
       <Box
-          grow
-          alignVertical="center"
-          backgroundColor="bg"
-          padding="32"
-          textAlign="left"
-          height="100%"
-        >
+        grow
+        alignVertical="center"
+        backgroundColor="bg"
+        padding="32"
+        textAlign="left"
+        height="100%"
+      >
         <Spacer size="14" />
-        <Image
-          height="32"
-          objectFit="cover"
-          src="/images/primary.png"
-        />
+        <Image height="32" objectFit="cover" src="/images/primary.png" />
         <Spacer size="96" />
         <Box grow flexDirection="row" gap="8">
-          <Box backgroundColor="bg" flex="1" >
+          <Box backgroundColor="bg" flex="1">
             <Text align="left" color="black" weight="600" size="24">
               Send tokens to anyone from any chain
             </Text>
             <Spacer size="10" />
             <Text align="left" weight="400" color="grey" size="16">
-              Send any token to Farcaster users and they will receive ETH on Base.
+              Send any token to Farcaster users and they will receive ETH on
+              Base.
             </Text>
           </Box>
-          <Box backgroundColor="bg" flex="1" >
-          </Box>
+          <Box backgroundColor="bg" flex="1"></Box>
         </Box>
       </Box>
     ),
-  })
-})
+  });
+});
 
-
-app.frame('/review', async (c) => {
+app.frame("/review", async (c) => {
   const { inputText } = c;
 
   try {
     // Fetch user by username
-    const byUsernameResponse = await fetch(`${baseUrlNeynarV2}/user/search?q=${inputText}`, {
-      method: 'GET',
-      headers: {
-          'accept': 'application/json',
-          'api_key': process.env.NEYNAR_API_KEY || '',
+    const byUsernameResponse = await fetch(
+      `${baseUrlNeynarV2}/user/search?q=${inputText}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          api_key: process.env.NEYNAR_API_KEY || "",
+        },
       },
-    });
+    );
 
     // Fetch user by address
-    const byAddressResponse = await fetch(`${baseUrlNeynarV2}/user/bulk-by-address?addresses=${inputText}`, {
-      method: 'GET',
-      headers: {
-          'accept': 'application/json',
-          'api_key': process.env.NEYNAR_API_KEY || '',
+    const byAddressResponse = await fetch(
+      `${baseUrlNeynarV2}/user/bulk-by-address?addresses=${inputText}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          api_key: process.env.NEYNAR_API_KEY || "",
+        },
       },
-    });
+    );
 
     // Check if at least one response is okay
     if (!byUsernameResponse.ok && !byAddressResponse.ok) {
-      return c.error(
-        {
-          message: 'User not found!'
-        }
-      );
+      return c.error({
+        message: "User not found!",
+      });
     }
 
     // Parse the responses
-    const dataUsername = byUsernameResponse.ok ? await byUsernameResponse.json() : null;
-    const dataAddress = byAddressResponse.ok ? await byAddressResponse.json() : null;
+    const dataUsername = byUsernameResponse.ok
+      ? await byUsernameResponse.json()
+      : null;
+    const dataAddress = byAddressResponse.ok
+      ? await byAddressResponse.json()
+      : null;
 
     // Check if results are available in either response
     const username = dataUsername?.result?.users?.[0];
-    const address = dataAddress ? (Object.values(dataAddress) as any)[0][0] : null;
+    const address = dataAddress
+      ? (Object.values(dataAddress) as any)[0][0]
+      : null;
 
     if (!username && !address) {
-      return c.error(
-        {
-          message: 'User not found!'
-        }
-      );
+      return c.error({
+        message: "User not found!",
+      });
     }
 
     // Get the fid from either username or address
     const toFid = username?.fid || address?.fid;
 
     if (!toFid) {
-      return c.error(
-        {
-          message: 'User fid not found!'
-        }
-      );
+      return c.error({
+        message: "User fid not found!",
+      });
     }
 
     // Respond with the image and intents
@@ -214,23 +211,23 @@ app.frame('/review', async (c) => {
       ],
     });
   } catch (error) {
-    return c.error(
-      {
-        message: 'An error occurred while searching for the user.'
-      }
-    );
+    return c.error({
+      message: "An error occurred while searching for the user.",
+    });
   }
 });
 
-
-app.image('/review-image/:toFid', async (c) => {
+app.image("/review-image/:toFid", async (c) => {
   const { toFid } = c.req.param();
 
   const user = await fetchUserData(toFid);
 
   const pfpUrl = user.pfp_url;
 
-  const displayName = user.display_name.length >= 15 ?  user.display_name.substring(0, 15) + "..." :  user.display_name;
+  const displayName =
+    user.display_name.length >= 15
+      ? user.display_name.substring(0, 15) + "..."
+      : user.display_name;
 
   const username = user.username;
 
@@ -241,14 +238,15 @@ app.image('/review-image/:toFid', async (c) => {
 
   function formatNumber(num: number) {
     if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
+      return (num / 1000).toFixed(1) + "K";
     }
     return num.toString();
   }
 
   return c.res({
     headers: {
-      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
+      "cache-control":
+        "no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0",
     },
     image: (
       <Box
@@ -269,11 +267,7 @@ app.image('/review-image/:toFid', async (c) => {
             justifyContent="flex-end"
             paddingBottom="4"
           >
-            <Image
-              height="32"
-              objectFit="cover"
-              src="/images/primary.png"
-            />
+            <Image height="32" objectFit="cover" src="/images/primary.png" />
             <Spacer size="64" />
             <Text align="left" color="black" weight="600" size="24">
               Pay {displayName}
@@ -363,10 +357,9 @@ app.image('/review-image/:toFid', async (c) => {
   });
 });
 
-
-app.frame('/send/:toFid', async (c) => {
+app.frame("/send/:toFid", async (c) => {
   const { inputText } = c;
-  const { fid } = c.var.interactor || {}
+  const { fid } = c.var.interactor || {};
 
   const fromFid = fid;
   const { toFid } = c.req.param();
@@ -378,13 +371,16 @@ app.frame('/send/:toFid', async (c) => {
   if (match) {
     const user = await fetchUserData(toFid);
 
-    const toEthAddress = user.verified_addresses.eth_addresses.toString().toLowerCase().split(',')[0];
+    const toEthAddress = user.verified_addresses.eth_addresses
+      .toString()
+      .toLowerCase()
+      .split(",")[0];
 
     console.log(`To Address: ${toEthAddress}`);
 
     const amount = match[1].trim();
     const currency = match[3].toLowerCase();
-    const chain = match[4] ? match[4].toLowerCase() : 'base'; // Default to 'base' if no chain is provided
+    const chain = match[4] ? match[4].toLowerCase() : "base"; // Default to 'base' if no chain is provided
 
     console.log(`Amount: ${amount}, Currency: ${currency}, Chain: ${chain}`);
 
@@ -396,77 +392,86 @@ app.frame('/send/:toFid', async (c) => {
     // Add logic to handle the chain and currency as needed
     let chainId;
     switch (parsedChain) {
-      case 'eth':
-      case 'ethereum':
-      case 'mainnet':
-        chainId = 'ethereum';
+      case "eth":
+      case "ethereum":
+      case "mainnet":
+        chainId = "ethereum";
         break;
-      case 'base':
-        chainId = 'base';
+      case "base":
+        chainId = "base";
         break;
-      case 'optimism':
-      case 'op':
-        chainId = 'optimism';
+      case "optimism":
+      case "op":
+        chainId = "optimism";
         break;
-      case 'arbitrum':
-      case 'arb':
-        chainId = 'arbitrum';
+      case "arbitrum":
+      case "arb":
+        chainId = "arbitrum";
         break;
-      case 'polygon':
-        chainId = 'polygon';
+      case "polygon":
+        chainId = "polygon";
         break;
       // Add other chains as needed
       default:
-        chainId = 'base';
+        chainId = "base";
         break;
     }
 
     try {
-      const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on((chains as any)[chainId]);
+      const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on(
+        (chains as any)[chainId],
+      );
       if (!paymentCurrencyOnChain) {
         return c.error({
-          message: 'Invalid currency or chain provided. Please try again.',
+          message: "Invalid currency or chain provided. Please try again.",
         });
       }
     } catch (error) {
       if (error instanceof CurrencyNotSupportedError) {
         return c.error({
-          message: 'Currency not supported.',
+          message: "Currency not supported.",
         });
       } else {
         return c.error({
-          message: 'An unexpected error occurred. Please try again.',
+          message: "An unexpected error occurred. Please try again.",
         });
       }
     }
 
-    const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on((chains as any)[chainId]);
+    const paymentCurrencyOnChain = (currencies as any)[paymentCurrency].on(
+      (chains as any)[chainId],
+    );
 
     try {
-      const { sessionId, sponsoredTransaction } = await createSession(glideConfig, {
-        chainId: chains.base.id,
+      const { sessionId, sponsoredTransaction } = await createSession(
+        glideConfig,
+        {
+          chainId: chains.base.id,
 
-        paymentCurrency: paymentCurrencyOnChain,
-        paymentAmount: Number(paymentAmount),
+          paymentCurrency: paymentCurrencyOnChain,
+          paymentAmount: Number(paymentAmount),
 
-        address: toEthAddress as `0x${string}`,
-      });
+          address: toEthAddress as `0x${string}`,
+        },
+      );
 
       if (!sponsoredTransaction) {
         throw new Error("missing sponsored transaction");
       }
 
-      const displayPaymentAmount = Number(paymentAmount) < 0.00001 
-      ? '<0.00001' 
-      : parseFloat(Number(paymentAmount).toFixed(5)).toString();
+      const displayPaymentAmount =
+        Number(paymentAmount) < 0.00001
+          ? "<0.00001"
+          : parseFloat(Number(paymentAmount).toFixed(5)).toString();
 
       const ethValueInHex = sponsoredTransaction.value;
 
-      const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18)
+      const ethValue = formatUnits(hexToBigInt(ethValueInHex), 18);
 
-      const displayReceivedEthValue = Number(ethValue) < 0.00001 
-      ? '<0.00001' 
-      : parseFloat(Number(ethValue).toFixed(5)).toString();
+      const displayReceivedEthValue =
+        Number(ethValue) < 0.00001
+          ? "<0.00001"
+          : parseFloat(Number(ethValue).toFixed(5)).toString();
 
       const chainStr = chainId.charAt(0).toUpperCase() + chainId.slice(1);
 
@@ -476,534 +481,625 @@ app.frame('/send/:toFid', async (c) => {
         action: `/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
         image: `/send-image/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${chainStr}/${paymentCurrencyUpperCase}`,
         intents: [
-          <Button.Transaction target={`/send-tx/${sessionId}`}>Send</Button.Transaction>,
+          <Button.Transaction target={`/send-tx/${sessionId}`}>
+            Send
+          </Button.Transaction>,
         ],
       });
     } catch (error) {
       return c.error({
-        message: 'Failed to create Glide session. Please try again.',
+        message: "Failed to create Glide session. Please try again.",
       });
     }
   } else {
     return c.error({
-      message: 'Invalid input format. Please use the format: "<number> <currency> on <chain>"',
+      message:
+        'Invalid input format. Please use the format: "<number> <currency> on <chain>"',
     });
   }
 });
 
+app.image(
+  "/send-image/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:chainStr/:paymentCurrencyUpperCase",
+  async (c) => {
+    const {
+      toFid,
+      displayPaymentAmount,
+      displayReceivedEthValue,
+      chainStr,
+      paymentCurrencyUpperCase,
+    } = c.req.param();
 
-app.image('/send-image/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:chainStr/:paymentCurrencyUpperCase', async (c) => {
-  const { toFid, displayPaymentAmount, displayReceivedEthValue, chainStr, paymentCurrencyUpperCase } = c.req.param();
-
-  let paymentCurrencyLogoUrl;
-  switch (chainStr) {
-    case 'Ethereum':
-      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032';
-      switch (paymentCurrencyUpperCase) {
-        case 'USDC':
-          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
-          break;
-        case 'USDT':
-          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
-          break;
-      }
-      break;
-    case 'Base':
-      paymentCurrencyLogoUrl = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-product/Base_Network_Logo.png';
-      switch (paymentCurrencyUpperCase) {
-        case 'USDC':
-          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
-          break;
-        case 'USDT':
-          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
-          break;
-      }
-      break;
-    case 'Optimism':
-      paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/optimism-ethereum-op-logo.png?v=032';
-      switch (paymentCurrencyUpperCase) {
-        case 'USDC':
-          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
-          break;
-        case 'USDT':
-          paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
-          break;
-      }
-      break;
-    case 'Arbitrum':
-    paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/arbitrum-arb-logo.png?v=032';
-    switch (paymentCurrencyUpperCase) {
-      case 'USDC':
-        paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
+    let paymentCurrencyLogoUrl;
+    switch (chainStr) {
+      case "Ethereum":
+        paymentCurrencyLogoUrl =
+          "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032";
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
+            break;
+          case "USDT":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
+            break;
+        }
         break;
-      case 'USDT':
-        paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
+      case "Base":
+        paymentCurrencyLogoUrl =
+          "https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-product/Base_Network_Logo.png";
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
+            break;
+          case "USDT":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
+            break;
+        }
+        break;
+      case "Optimism":
+        paymentCurrencyLogoUrl =
+          "https://cryptologos.cc/logos/optimism-ethereum-op-logo.png?v=032";
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
+            break;
+          case "USDT":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
+            break;
+        }
+        break;
+      case "Arbitrum":
+        paymentCurrencyLogoUrl =
+          "https://cryptologos.cc/logos/arbitrum-arb-logo.png?v=032";
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
+            break;
+          case "USDT":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
+            break;
+        }
+        break;
+      case "Polygon":
+        paymentCurrencyLogoUrl =
+          "https://cryptologos.cc/logos/polygon-matic-logo.png?v=032";
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
+            break;
+          case "USDT":
+            paymentCurrencyLogoUrl =
+              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
+            break;
+        }
+        break;
+      // Add other currencies as needed
+      default:
+        paymentCurrencyLogoUrl =
+          "https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-product/Base_Network_Logo.png";
         break;
     }
-    break;
-    case 'Polygon':
-    paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=032';
-    switch (paymentCurrencyUpperCase) {
-      case 'USDC':
-        paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032';
-        break;
-      case 'USDT':
-        paymentCurrencyLogoUrl = 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=032';
-        break;
-    }
-    break;
-    // Add other currencies as needed
-    default:
-      paymentCurrencyLogoUrl = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-product/Base_Network_Logo.png';
-      break;
-  }
 
-  const user = await fetchUserData(toFid);
+    const user = await fetchUserData(toFid);
 
-  const pfpUrl = user.pfp_url;
+    const pfpUrl = user.pfp_url;
 
-  const displayName = user.display_name;
+    const displayName = user.display_name;
 
-  const username = user.username;
+    const username = user.username;
 
-  return c.res({
-    headers: {
-      'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0',
-    },
-    image: (
-      <Box
-        grow
-        alignVertical="center"
-        backgroundColor="bg"
-        padding="32"
-        textAlign="center"
-        height="100%"
-      >
-        <Image
-          height="28"
-          objectFit="cover"
-          src="/images/primary.png"
-        />
-  
-        <Box backgroundColor="bg" alignHorizontal="center">
-          <img
-            height="96"
-            width="96"
-            src={pfpUrl}
-            style={{
-              borderRadius: "15%",
-              objectFit: "cover",
-            }}
-          />
-        </Box>
-  
-        <Spacer size="4" />
-  
-        <Text align="center" color="black" weight="600" size="24">
-          Pay {displayName}
-        </Text>
-  
-        <Spacer size="10" />
-  
-        <Text align="center" color="grey" weight="400" size="14">
-          @{username}
-        </Text>
-  
-        <Spacer size="10" />
-  
-        <Text align="center" weight="400" color="grey" size="16">
-          You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on {chainStr}.
-        </Text>
-  
-        <Spacer size="6" />
-  
-        <Text align="center" weight="400" color="grey" size="16">
-          {displayName} will receive {displayReceivedEthValue} ETH on Base.
-        </Text>
-  
-        <Spacer size="32" />
-  
-        <Box grow flexDirection="row" gap="8">
-          <Box backgroundColor="bg" flex="1" height="60" alignHorizontal="center" />
-  
-          <Box backgroundColor="bg" flex="2" height="60" alignHorizontal="center">
-            <Text align="right" weight="600" color="grey" size="12">
-              YOU SEND
-            </Text>
-  
-            <Spacer size="8" />
-  
-            <Box flexDirection="row">
-              <Image
-                height="22"
-                objectFit="cover"
-                src={paymentCurrencyLogoUrl}
-              />
-              <Spacer size="8" />
-              <Text align="center" weight="600" color="black" size="20">
-                {displayPaymentAmount} {paymentCurrencyUpperCase}
+    return c.res({
+      headers: {
+        "cache-control":
+          "no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0",
+      },
+      image: (
+        <Box
+          grow
+          alignVertical="center"
+          backgroundColor="bg"
+          padding="32"
+          textAlign="center"
+          height="100%"
+        >
+          <Image height="28" objectFit="cover" src="/images/primary.png" />
+
+          <Box backgroundColor="bg" alignHorizontal="center">
+            <img
+              height="96"
+              width="96"
+              src={pfpUrl}
+              style={{
+                borderRadius: "15%",
+                objectFit: "cover",
+              }}
+            />
+          </Box>
+
+          <Spacer size="4" />
+
+          <Text align="center" color="black" weight="600" size="24">
+            Pay {displayName}
+          </Text>
+
+          <Spacer size="10" />
+
+          <Text align="center" color="grey" weight="400" size="14">
+            @{username}
+          </Text>
+
+          <Spacer size="10" />
+
+          <Text align="center" weight="400" color="grey" size="16">
+            You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on{" "}
+            {chainStr}.
+          </Text>
+
+          <Spacer size="6" />
+
+          <Text align="center" weight="400" color="grey" size="16">
+            {displayName} will receive {displayReceivedEthValue} ETH on Base.
+          </Text>
+
+          <Spacer size="32" />
+
+          <Box grow flexDirection="row" gap="8">
+            <Box
+              backgroundColor="bg"
+              flex="1"
+              height="60"
+              alignHorizontal="center"
+            />
+
+            <Box
+              backgroundColor="bg"
+              flex="2"
+              height="60"
+              alignHorizontal="center"
+            >
+              <Text align="right" weight="600" color="grey" size="12">
+                YOU SEND
               </Text>
-            </Box>
-          </Box>
-  
-          <Box backgroundColor="bg" flex="1" alignHorizontal="center" justifyContent="center" height="60">
-            <Icon name="move-right" color="green" size="32" />
-          </Box>
-  
-          <Box backgroundColor="bg" flex="2" height="60" alignHorizontal="center">
-            <Text align="center" weight="600" color="grey" size="12">
-              THEY RECEIVE
-            </Text>
-  
-            <Spacer size="8" />
-  
-            <Box flexDirection="row">
-              <Image
-                height="22"
-                objectFit="cover"
-                src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"
-              />
+
               <Spacer size="8" />
-              <Text align="center" weight="600" color="black" size="20">
-                {displayReceivedEthValue} ETH
-              </Text>
+
+              <Box flexDirection="row">
+                <Image
+                  height="22"
+                  objectFit="cover"
+                  src={paymentCurrencyLogoUrl}
+                />
+                <Spacer size="8" />
+                <Text align="center" weight="600" color="black" size="20">
+                  {displayPaymentAmount} {paymentCurrencyUpperCase}
+                </Text>
+              </Box>
             </Box>
+
+            <Box
+              backgroundColor="bg"
+              flex="1"
+              alignHorizontal="center"
+              justifyContent="center"
+              height="60"
+            >
+              <Icon name="move-right" color="green" size="32" />
+            </Box>
+
+            <Box
+              backgroundColor="bg"
+              flex="2"
+              height="60"
+              alignHorizontal="center"
+            >
+              <Text align="center" weight="600" color="grey" size="12">
+                THEY RECEIVE
+              </Text>
+
+              <Spacer size="8" />
+
+              <Box flexDirection="row">
+                <Image
+                  height="22"
+                  objectFit="cover"
+                  src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"
+                />
+                <Spacer size="8" />
+                <Text align="center" weight="600" color="black" size="20">
+                  {displayReceivedEthValue} ETH
+                </Text>
+              </Box>
+            </Box>
+
+            <Box
+              backgroundColor="bg"
+              flex="1"
+              height="60"
+              alignHorizontal="center"
+            />
           </Box>
-  
-          <Box backgroundColor="bg" flex="1" height="60" alignHorizontal="center" />
         </Box>
-      </Box>
-    ),
-  });  
-})
-
-
-app.transaction('/send-tx/:sessionId', async (c, next) => {
-  await next();
-  const txParams = await c.res.json();
-  txParams.attribution = false;
-  console.log(txParams);
-  c.res = new Response(JSON.stringify(txParams), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-},
-async (c) => {
-  const { sessionId } = c.req.param();
-
-  const { unsignedTransaction } = await getSessionById(glideConfig, sessionId)
-
-  if (!unsignedTransaction) {
-    throw new Error("missing unsigned transaction");
-  }
-
-  return c.send({
-    chainId: unsignedTransaction.chainId as any,
-    to: unsignedTransaction.to || undefined,
-    data: unsignedTransaction.input || undefined,
-    value: hexToBigInt(unsignedTransaction.value),
-  })
-})
-
-
-app.frame("/tx-status/:sessionId/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
-  const { transactionId, buttonValue } = c;
-
-  const { sessionId, fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
-
-  // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
-  const txHash = transactionId || buttonValue;
-
-  if (!txHash) {
-    return c.error({
-      message: 'Missing transaction hash, please try again.',
+      ),
     });
-  }
+  },
+);
 
-  try {
-    // Check if the session is already completed
-    const { success } = await updatePaymentTransaction(glideConfig, {
-      sessionId: sessionId,
-      hash: txHash as `0x${string}`,
+app.transaction(
+  "/send-tx/:sessionId",
+  async (c, next) => {
+    await next();
+    const txParams = await c.res.json();
+    txParams.attribution = false;
+    console.log(txParams);
+    c.res = new Response(JSON.stringify(txParams), {
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+  },
+  async (c) => {
+    const { sessionId } = c.req.param();
 
-    if (!success) {
-      throw new Error("failed to update payment transaction");
+    const { unsignedTransaction } = await getSessionById(
+      glideConfig,
+      sessionId,
+    );
+
+    if (!unsignedTransaction) {
+      throw new Error("missing unsigned transaction");
     }
 
-    // Get the current session state
-    const session = await getSessionById(glideConfig, sessionId);
+    return c.send({
+      chainId: unsignedTransaction.chainId as any,
+      to: unsignedTransaction.to || undefined,
+      data: unsignedTransaction.input || undefined,
+      value: hexToBigInt(unsignedTransaction.value),
+    });
+  },
+);
 
-    if (!session) {
-      throw new Error('Session not found');
-    }
+app.frame(
+  "/tx-status/:sessionId/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase",
+  async (c) => {
+    const { transactionId, buttonValue } = c;
 
-    // If the session has a sponsoredTransactionHash, it means the transaction is complete
-    if (session.sponsoredTransactionHash) {
-      return c.res({
-        image: `/tx-success/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
-        intents: [
-          <Button.Link
-            href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
-          >
-            View on Explorer
-          </Button.Link>,
-        ],
+    const {
+      sessionId,
+      fromFid,
+      toFid,
+      displayPaymentAmount,
+      displayReceivedEthValue,
+      paymentCurrencyUpperCase,
+    } = c.req.param();
+
+    // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
+    const txHash = transactionId || buttonValue;
+
+    if (!txHash) {
+      return c.error({
+        message: "Missing transaction hash, please try again.",
       });
-    } else {
-      // If the session does not have a sponsoredTransactionHash, the payment is still pending
+    }
+
+    try {
+      // Check if the session is already completed
+      const { success } = await updatePaymentTransaction(glideConfig, {
+        sessionId: sessionId,
+        hash: txHash as `0x${string}`,
+      });
+
+      if (!success) {
+        throw new Error("failed to update payment transaction");
+      }
+
+      // Get the current session state
+      const session = await getSessionById(glideConfig, sessionId);
+
+      if (!session) {
+        throw new Error("Session not found");
+      }
+
+      // If the session has a sponsoredTransactionHash, it means the transaction is complete
+      if (session.sponsoredTransactionHash) {
+        return c.res({
+          image: `/tx-success/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+          intents: [
+            <Button.Link
+              href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
+            >
+              View on Explorer
+            </Button.Link>,
+          ],
+        });
+      } else {
+        // If the session does not have a sponsoredTransactionHash, the payment is still pending
+        return c.res({
+          image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+          intents: [
+            <Button
+              value={txHash}
+              action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}
+            >
+              Refresh
+            </Button>,
+          ],
+        });
+      }
+    } catch (e) {
+      console.error("Error:", e);
+
       return c.res({
         image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
         intents: [
-          <Button value={txHash} action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}>
+          <Button
+            value={txHash}
+            action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}
+          >
             Refresh
           </Button>,
         ],
       });
     }
-  } catch (e) {
-    console.error('Error:', e);
+  },
+);
+
+app.image(
+  "/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase",
+  async (c) => {
+    const {
+      fromFid,
+      toFid,
+      displayPaymentAmount,
+      displayReceivedEthValue,
+      paymentCurrencyUpperCase,
+    } = c.req.param();
+
+    const [fromUser, toUser] = await Promise.all([
+      fetchUserData(fromFid),
+      fetchUserData(toFid),
+    ]);
+
+    const fromPfpUrl = fromUser.pfp_url;
+    const toPfpUrl = toUser.pfp_url;
+    const toDisplayName = toUser.display_name;
 
     return c.res({
-      image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
-      intents: [
-        <Button value={txHash} action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}>
-          Refresh
-        </Button>,
-      ],
+      image: (
+        <Box
+          grow
+          alignVertical="center"
+          backgroundColor="bg"
+          padding="32"
+          textAlign="center"
+          height="100%"
+        >
+          <Image height="28" objectFit="cover" src="/images/primary.png" />
+
+          <Box
+            backgroundColor="bg"
+            position="relative"
+            display="flex"
+            justifyContent="center"
+            alignHorizontal="center"
+            marginTop="20"
+            marginLeft="10"
+          >
+            <Box
+              position="absolute"
+              display="flex"
+              justifyContent="center"
+              backgroundColor="green"
+            >
+              <img
+                height="96"
+                width="96"
+                src={fromPfpUrl}
+                style={{
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  position: "absolute",
+                  right: 0,
+                }}
+              />
+
+              <img
+                height="96"
+                width="96"
+                src={toPfpUrl}
+                style={{
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  position: "absolute",
+                  left: "-30px",
+                }}
+              />
+            </Box>
+          </Box>
+
+          <Spacer size="32" />
+
+          <Text align="center" color="black" weight="600" size="24">
+            Sent!
+          </Text>
+
+          <Spacer size="6" />
+
+          <Text align="center" color="grey" weight="600" size="14">
+            {displayPaymentAmount} {paymentCurrencyUpperCase}
+          </Text>
+
+          <Spacer size="16" />
+
+          <Text align="center" weight="400" color="grey" size="16">
+            Your transaction is underway.
+          </Text>
+
+          <Spacer size="6" />
+
+          <Text align="center" weight="400" color="grey" size="16">
+            {toDisplayName} will receive {displayReceivedEthValue} ETH on Base
+            shortly.
+          </Text>
+
+          <Spacer size="32" />
+
+          <Text align="center" weight="600" color="grey" size="14">
+            STATUS
+          </Text>
+
+          <Spacer size="16" />
+
+          <Box
+            flexDirection="row"
+            alignItems="flex-start"
+            justifyContent="center"
+          >
+            <Icon name="clock" color="process" size="22" />
+            <Spacer size="6" />
+            <Text align="center" weight="600" color="black" size="20">
+              Processing
+            </Text>
+          </Box>
+        </Box>
+      ),
     });
-  }
-});
+  },
+);
 
+app.image(
+  "/tx-success/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase",
+  async (c) => {
+    const {
+      fromFid,
+      toFid,
+      displayPaymentAmount,
+      displayReceivedEthValue,
+      paymentCurrencyUpperCase,
+    } = c.req.param();
 
-app.image("/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
+    const [fromUser, toUser] = await Promise.all([
+      fetchUserData(fromFid),
+      fetchUserData(toFid),
+    ]);
 
-  const { fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
+    const fromPfpUrl = fromUser.pfp_url;
+    const toPfpUrl = toUser.pfp_url;
+    const toDisplayName = toUser.display_name;
 
-  const [fromUser, toUser] = await Promise.all([fetchUserData(fromFid), fetchUserData(toFid)]);
-
-  const fromPfpUrl = fromUser.pfp_url;
-  const toPfpUrl = toUser.pfp_url;
-  const toDisplayName = toUser.display_name;
-
-  return c.res({
-    image: (
-      <Box
-        grow
-        alignVertical="center"
-        backgroundColor="bg"
-        padding="32"
-        textAlign="center"
-        height="100%"
-      >
-        <Image
-          height="28"
-          objectFit="cover"
-          src="/images/primary.png"
-        />
-  
+    return c.res({
+      image: (
         <Box
+          grow
+          alignVertical="center"
           backgroundColor="bg"
-          position="relative"
-          display="flex"
-          justifyContent="center"
-          alignHorizontal="center"
-          marginTop="20"
-          marginLeft="10"
+          padding="32"
+          textAlign="center"
+          height="100%"
         >
+          <Image height="28" objectFit="cover" src="/images/primary.png" />
+
           <Box
-            position="absolute"
+            backgroundColor="bg"
+            position="relative"
             display="flex"
             justifyContent="center"
-            backgroundColor="green"
+            alignHorizontal="center"
+            marginTop="20"
+            marginLeft="10"
           >
-            <img
-              height="96"
-              width="96"
-              src={fromPfpUrl}
-              style={{
-                borderRadius: "50%",
-                objectFit: "cover",
-                position: "absolute",
-                right: 0,
-              }}
-            />
-  
-            <img
-              height="96"
-              width="96"
-              src={toPfpUrl}
-              style={{
-                borderRadius: "50%",
-                objectFit: "cover",
-                position: "absolute",
-                left: "-30px",
-              }}
-            />
+            <Box
+              position="absolute"
+              display="flex"
+              justifyContent="center"
+              backgroundColor="green"
+            >
+              <img
+                height="96"
+                width="96"
+                src={fromPfpUrl}
+                style={{
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  position: "absolute",
+                  right: 0,
+                }}
+              />
+
+              <img
+                height="96"
+                width="96"
+                src={toPfpUrl}
+                style={{
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  position: "absolute",
+                  left: "-30px",
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
-  
-        <Spacer size="32" />
-  
-        <Text align="center" color="black" weight="600" size="24">
-          Sent!
-        </Text>
-  
-        <Spacer size="6" />
-  
-        <Text align="center" color="grey" weight="600" size="14">
-          {displayPaymentAmount} {paymentCurrencyUpperCase}
-        </Text>
-  
-        <Spacer size="16" />
-  
-        <Text align="center" weight="400" color="grey" size="16">
-          Your transaction is underway.
-        </Text>
-  
-        <Spacer size="6" />
-  
-        <Text align="center" weight="400" color="grey" size="16">
-          {toDisplayName} will receive {displayReceivedEthValue} ETH on Base shortly.
-        </Text>
-  
-        <Spacer size="32" />
-  
-        <Text align="center" weight="600" color="grey" size="14">
-          STATUS
-        </Text>
-  
-        <Spacer size="16" />
-  
-        <Box flexDirection="row" alignItems="flex-start" justifyContent="center">
-          <Icon name="clock" color="process" size="22" />
-          <Spacer size="6" />
-          <Text align="center" weight="600" color="black" size="20">
-            Processing
+
+          <Spacer size="32" />
+
+          <Text align="center" color="black" weight="600" size="24">
+            Sent!
           </Text>
-        </Box>
-      </Box>
-    ),
-  });  
-});
 
+          <Spacer size="6" />
 
-app.image("/tx-success/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase", async (c) => {
+          <Text align="center" color="grey" weight="600" size="14">
+            {displayPaymentAmount} {paymentCurrencyUpperCase}
+          </Text>
 
-  const { fromFid, toFid, displayPaymentAmount, displayReceivedEthValue, paymentCurrencyUpperCase } = c.req.param();
+          <Spacer size="16" />
 
-  const [fromUser, toUser] = await Promise.all([fetchUserData(fromFid), fetchUserData(toFid)]);
+          <Text align="center" weight="400" color="grey" size="16">
+            Your transaction is underway.
+          </Text>
 
-  const fromPfpUrl = fromUser.pfp_url;
-  const toPfpUrl = toUser.pfp_url;
-  const toDisplayName = toUser.display_name;
+          <Spacer size="6" />
 
-  return c.res({
-    image: (
-      <Box
-        grow
-        alignVertical="center"
-        backgroundColor="bg"
-        padding="32"
-        textAlign="center"
-        height="100%"
-      >
-        <Image
-          height="28"
-          objectFit="cover"
-          src="/images/primary.png"
-        />
-  
-        <Box
-          backgroundColor="bg"
-          position="relative"
-          display="flex"
-          justifyContent="center"
-          alignHorizontal="center"
-          marginTop="20"
-          marginLeft="10"
-        >
+          <Text align="center" weight="400" color="grey" size="16">
+            {toDisplayName} will receive {displayReceivedEthValue} ETH on Base
+            shortly.
+          </Text>
+
+          <Spacer size="32" />
+
+          <Text align="center" weight="600" color="grey" size="14">
+            STATUS
+          </Text>
+
+          <Spacer size="16" />
+
           <Box
-            position="absolute"
-            display="flex"
+            flexDirection="row"
+            alignItems="flex-start"
             justifyContent="center"
-            backgroundColor="green"
           >
-            <img
-              height="96"
-              width="96"
-              src={fromPfpUrl}
-              style={{
-                borderRadius: "50%",
-                objectFit: "cover",
-                position: "absolute",
-                right: 0,
-              }}
-            />
-  
-            <img
-              height="96"
-              width="96"
-              src={toPfpUrl}
-              style={{
-                borderRadius: "50%",
-                objectFit: "cover",
-                position: "absolute",
-                left: "-30px",
-              }}
-            />
+            <Icon name="circle-check" color="green" size="22" />
+            <Spacer size="6" />
+            <Text align="center" weight="600" color="black" size="20">
+              Success
+            </Text>
           </Box>
         </Box>
-  
-        <Spacer size="32" />
-  
-        <Text align="center" color="black" weight="600" size="24">
-          Sent!
-        </Text>
-  
-        <Spacer size="6" />
-  
-        <Text align="center" color="grey" weight="600" size="14">
-          {displayPaymentAmount} {paymentCurrencyUpperCase}
-        </Text>
-  
-        <Spacer size="16" />
-  
-        <Text align="center" weight="400" color="grey" size="16">
-          Your transaction is underway.
-        </Text>
-  
-        <Spacer size="6" />
-  
-        <Text align="center" weight="400" color="grey" size="16">
-          {toDisplayName} will receive {displayReceivedEthValue} ETH on Base shortly.
-        </Text>
-  
-        <Spacer size="32" />
-  
-        <Text align="center" weight="600" color="grey" size="14">
-          STATUS
-        </Text>
-  
-        <Spacer size="16" />
-  
-        <Box flexDirection="row" alignItems="flex-start" justifyContent="center">
-          <Icon name="circle-check" color="green" size="22" />
-          <Spacer size="6" />
-          <Text align="center" weight="600" color="black" size="20">
-            Success
-          </Text>
-        </Box>
-      </Box>
-    ),
-  });  
-});
-
+      ),
+    });
+  },
+);
 
 // Uncomment for local server testing
 // devtools(app, { serveStatic });
 
-
-export const GET = handle(app)
-export const POST = handle(app)
+export const GET = handle(app);
+export const POST = handle(app);
