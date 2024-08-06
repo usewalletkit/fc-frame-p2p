@@ -18,17 +18,9 @@ import { formatUnits, hexToBigInt } from "viem";
 
 dotenv.config();
 
-const embedUrl = "https://paywithglide.vercel.app/api/frame";
-const baseUrl = "https://warpcast.com/~/compose";
-const text =
-  "@paywithglide P2P Transfer 💸\n\nFrame by @tusharsoni.eth & @0x94t3z.eth";
-
-const CAST_INTENS = `${baseUrl}?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`;
-
 export const app = new Frog({
   ui: { vars },
-  title: "PayWithGlide.xyz",
-  browserLocation: CAST_INTENS,
+  title: "Pay with Glide - send tokens to anyone from any chain",
   headers: {
     "cache-control":
       "no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0",
