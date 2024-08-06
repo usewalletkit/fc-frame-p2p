@@ -1,87 +1,31 @@
-import { Button, Frog, TextInput } from "frog";
-import { handle } from "frog/vercel";
+import dotenv from "dotenv";
+import { Frog } from "frog";
+import { Icon, vars } from "../lib/ui.js";
 import { neynar } from "frog/middlewares";
-import { Box, Image, Icon, Text, Spacer, vars } from "../lib/ui.js";
+import { Button, TextInput } from "frog";
+import { Box, Spacer, Image, Text } from "../lib/ui.js";
+import { fetchUserData } from "../lib/fetchUserData.js";
 import {
   chains,
-  currencies,
   createSession,
+  currencies,
   CurrencyNotSupportedError,
   getSessionById,
   updatePaymentTransaction,
 } from "@paywithglide/glide-js";
-import { glideConfig } from "../lib/config.js";
+import { glideConfig } from "../lib/glide.js";
 import { formatUnits, hexToBigInt } from "viem";
-import dotenv from "dotenv";
 
-// Uncomment this packages to tested on local server
-// import { devtools } from 'frog/dev'
-// import { serveStatic } from 'frog/serve-static'
-
-// Load environment variables from .env file
 dotenv.config();
 
+const embedUrl = "https://paywithglide.vercel.app/api/frame";
 const baseUrl = "https://warpcast.com/~/compose";
 const text =
   "@paywithglide P2P Transfer 💸\n\nFrame by @tusharsoni.eth & @0x94t3z.eth";
-const embedUrl = "https://paywithglide.vercel.app/api/frame";
 
 const CAST_INTENS = `${baseUrl}?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`;
 
-const baseUrlNeynarV2 = process.env.BASE_URL_NEYNAR_V2;
-
-// Cache to store user data
-const cache = new Map();
-
-// Function to fetch data with retries
-async function fetchWithRetry(
-  url: string | URL | Request,
-  options: RequestInit | undefined,
-  retries = 5,
-  delay = 1000,
-) {
-  for (let i = 0; i < retries; i++) {
-    const response = await fetch(url, options);
-    if (response.ok) {
-      return response.json();
-    }
-    if (response.status === 429 && i < retries - 1) {
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      delay *= 2;
-    } else {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-  }
-}
-
-// Function to fetch user data by fid
-async function fetchUserData(fid: string) {
-  if (cache.has(fid)) {
-    return cache.get(fid);
-  }
-
-  const url = `${baseUrlNeynarV2}/user/bulk?fids=${fid}`;
-  const options = {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      api_key: process.env.NEYNAR_API_KEY || "",
-    },
-  };
-
-  const data = await fetchWithRetry(url, options);
-  if (!data || !data.users || data.users.length === 0) {
-    throw new Error("User not found!");
-  }
-
-  const user = data.users[0];
-  cache.set(fid, user);
-  return user;
-}
-
 export const app = new Frog({
-  assetsPath: "/",
-  basePath: "/api/frame",
   ui: { vars },
   title: "PayWithGlide.xyz",
   browserLocation: CAST_INTENS,
@@ -101,7 +45,7 @@ app.frame("/", (c) => {
     image: "/initial-image",
     intents: [
       <TextInput placeholder="dwr.eth or 0xc69...c758" />,
-      <Button action="/review">Continue</Button>,
+      <Button action="/review"> Continue </Button>,
     ],
   });
 });
@@ -131,7 +75,9 @@ app.image("/initial-image", (c) => {
               Base.
             </Text>
           </Box>
-          <Box backgroundColor="bg" flex="1"></Box>
+          <Box backgroundColor="bg" flex="1">
+            {" "}
+          </Box>
         </Box>
       </Box>
     ),
@@ -144,7 +90,7 @@ app.frame("/review", async (c) => {
   try {
     // Fetch user by username
     const byUsernameResponse = await fetch(
-      `${baseUrlNeynarV2}/user/search?q=${inputText}`,
+      `${process.env.BASE_URL_NEYNAR_V2}/user/search?q=${inputText}`,
       {
         method: "GET",
         headers: {
@@ -156,7 +102,7 @@ app.frame("/review", async (c) => {
 
     // Fetch user by address
     const byAddressResponse = await fetch(
-      `${baseUrlNeynarV2}/user/bulk-by-address?addresses=${inputText}`,
+      `${process.env.BASE_URL_NEYNAR_V2}/user/bulk-by-address?addresses=${inputText}`,
       {
         method: "GET",
         headers: {
@@ -207,7 +153,7 @@ app.frame("/review", async (c) => {
       image: `/review-image/${toFid}`,
       intents: [
         <TextInput placeholder="0.1 eth on base or 5 usdc" />,
-        <Button action={`/send/${toFid}`}>Review</Button>,
+        <Button action={`/send/${toFid}`}> Review </Button>,
       ],
     });
   } catch (error) {
@@ -1098,8 +1044,11 @@ app.image(
   },
 );
 
-// Uncomment for local server testing
-// devtools(app, { serveStatic });
-
-export const GET = handle(app);
-export const POST = handle(app);
+if (typeof Bun !== "undefined") {
+  app.use("/*", (await import("hono/bun")).serveStatic({ root: "./public" }));
+  Bun.serve({
+    fetch: app.fetch,
+    port: 3000,
+  });
+  console.log("Server is running on port 3000");
+}

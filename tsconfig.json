@@ -1,20 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "skipLibCheck": true,
-
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "jsxImportSource": "frog/jsx",
-
-    /* Linting Section */
+    "module": "NodeNext",
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
-  },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.mtsx"]
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx"
+  }
 }
