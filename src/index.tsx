@@ -16,11 +16,20 @@ import {
 import { glideConfig } from "../lib/glide.js";
 import { formatUnits, hexToBigInt } from "viem";
 
+// Uncomment this packages to tested on local server
+import { devtools } from 'frog/dev'
+import { serveStatic } from 'frog/serve-static'
+
 dotenv.config();
 
 export const app = new Frog({
   ui: { vars },
   title: "Pay with Glide - send tokens to anyone from any chain",
+  imageAspectRatio: "1:1",
+  imageOptions: {
+    height: 800,
+    width: 800,
+  },
   headers: {
     "cache-control":
       "no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0",
@@ -31,6 +40,15 @@ export const app = new Frog({
     features: ["interactor", "cast"],
   }),
 );
+
+// Function to truncate text
+const truncateText = (text: string, maxLength: number) => {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + '...';
+  }
+  return text;
+};
+
 
 app.frame("/", (c) => {
   return c.res({
@@ -49,26 +67,58 @@ app.image("/initial-image", (c) => {
         grow
         alignVertical="center"
         backgroundColor="bg"
-        padding="32"
+        padding="48"
         textAlign="left"
         height="100%"
+        width="100%"
       >
-        <Spacer size="14" />
-        <Image height="32" objectFit="cover" src="/images/primary.png" />
-        <Spacer size="96" />
-        <Box grow flexDirection="row" gap="8">
-          <Box backgroundColor="bg" flex="1">
-            <Text align="left" color="black" weight="600" size="24">
-              Send tokens to anyone from any chain
-            </Text>
+        <Box 
+          grow 
+          backgroundImage="url(https://s3-alpha-sig.figma.com/img/c2ca/2452/3601c6e757fc38f6cdab466afe5a7422?Expires=1725235200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=Au63Mt8dE2Oe2lSI-ss974mRk1ddK~LoRizIt~vDCv69j~uCJs6gSGGyS7DJKwvpDNxccO5VoLa~m1vUYp8fYvJ1AWjoZOZo-~hcWT0ut55mOriAwvhYwvM~GX0Uikh8T1r103NLQWn4J4Ue2hCxpJGMFxuDlhnSCgPPEy2ritA6cILoCH54xQ6J3LlgcPP59hrv-IYMocRJOBjxRkUiLfktQhDFsOGXRviqmmLWVQCYaFAg7-n3WeVEVoArQLt0IH7qtgwvtBTaSm7LC9sirvhLa5prQeoaI9ibRWDHbLshcLm7lv~xBTokHYHEOiWx2tbZLf-xf7HmSBgHZSsasg__)"
+          borderRadius="18"
+          flexDirection="column" 
+          justifyContent="flex-end" 
+        >
+          <Box
+            backgroundColor="text_bg" 
+            padding="20"
+            width="100%"
+            height="256"
+          >
+            <text 
+              style={
+                {
+                  border: "none",
+                  color: "black",
+                  fontSize: "64px",
+                  fontWeight: "500",
+                  width: "100%",
+                  resize: "none",
+                  outline: "none",
+                  lineHeight: "1"
+                }
+              }
+            >
+              Send your favorite tokens
+            </text>
+
             <Spacer size="10" />
-            <Text align="left" weight="400" color="grey" size="16">
-              Send any token to Farcaster users and they will receive ETH on
-              Base.
-            </Text>
-          </Box>
-          <Box backgroundColor="bg" flex="1">
-            {" "}
+
+            <text 
+              style={
+                {
+                  border: "none",
+                  color: "grey",
+                  fontSize: "32px",
+                  fontWeight: "400",
+                  width: "100%",
+                  resize: "none",
+                  outline: "none",
+                }
+              }
+            >
+              Pay Farcasters with any token you like, and they always get ETH on Base.
+            </text>
           </Box>
         </Box>
       </Box>
@@ -171,7 +221,6 @@ app.image("/review-image/:toFid", async (c) => {
 
   const bio = user.profile.bio.text;
 
-  const following = user.following_count;
   const followers = user.follower_count;
 
   function formatNumber(num: number) {
@@ -183,111 +232,146 @@ app.image("/review-image/:toFid", async (c) => {
 
   return c.res({
     headers: {
-      "cache-control":
-        "no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0",
+      "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0",
     },
     image: (
       <Box
         grow
         alignVertical="center"
         backgroundColor="bg"
-        padding="32"
+        padding="48"
         textAlign="left"
         height="100%"
+        width="100%"
       >
-        <Box grow flexDirection="row" gap="8">
+        <Box grow flexDirection="column" padding="20" gap="8" alignItems="center">
+          
+          {/* Text and Image Section */}
           <Box
-            backgroundColor="bg"
-            flex="2"
-            paddingRight="32"
-            display="flex"
-            flexDirection="column"
-            justifyContent="flex-end"
-            paddingBottom="4"
-          >
-            <Image height="32" objectFit="cover" src="/images/primary.png" />
-            <Spacer size="64" />
-            <Text align="left" color="black" weight="600" size="24">
-              Pay {displayName}
-            </Text>
-            <Spacer size="6" />
-            <Text align="left" weight="400" color="grey" size="16">
-              Send any token to {displayName} and they will receive ETH on Base.
-            </Text>
-            <Spacer size="10" />
-            <Box
-              borderRadius="14"
-              padding="14"
-              background="blue"
-              height="60"
-              width="100%"
-            >
-              <Box flexDirection="row" alignItems="flex-start" display="flex">
-                <Icon name="info" color="white" size="18" />
-                <Spacer size="10" />
-                <Text align="left" weight="400" color="white" size="14">
-                  Enter the amount and the token you want to send
-                </Text>
-              </Box>
-            </Box>
-          </Box>
-          <Box
+            grow
             backgroundColor="bg"
             flex="1"
-            paddingRight="36"
-            display="flex"
-            flexDirection="column"
-            justifyContent="flex-end"
+            flexDirection="row"
+            alignItems="center"
+            width="100%"
+            overflow="hidden"
+            position="relative"
           >
-            <Spacer size="10" />
+            {/* Image */}
             <img
-              height="160"
-              width="160"
+              width="200"
+              height="200"
               src={pfpUrl}
               style={{
-                borderRadius: "15%",
+                borderRadius: "20px",
                 objectFit: "cover",
+                maxWidth: "100%",
+                maxHeight: "100%",
+                display: "block",
               }}
             />
-            <Spacer size="6" />
-            <Text align="left" weight="600" color="black" size="18">
-              {displayName}
-            </Text>
-            <Text align="left" weight="400" color="grey" size="14">
-              @{username}
-            </Text>
-            <Spacer size="10" />
-            <Text align="left" weight="400" color="black" size="12">
-              {bio}
-            </Text>
-            <Spacer size="10" />
+            <Spacer size="24" />
+            
+            {/* Text Container */}
             <Box
-              flexDirection="row"
-              padding="0"
-              alignItems="center"
-              justifyContent="space-between"
               display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              flex="1"
             >
-              <Box flexDirection="row" alignItems="center" display="flex">
-                <Text align="left" weight="600" color="black" size="12">
-                  {formatNumber(following)}
-                </Text>
-                <Spacer size="4" />
-                <Text align="left" color="grey" size="12">
-                  Following
-                </Text>
-              </Box>
+              <Text align="left" weight="500" color="grey" size="24">
+                @{username}
+              </Text>
+              <Spacer size="6" />
+  
+              <Text align="left" weight="400" color="black" size="24">
+                {truncateText(bio, 25)}
+              </Text>
               <Spacer size="10" />
-              <Box flexDirection="row" alignItems="center" display="flex">
-                <Text align="left" weight="600" color="black" size="12">
+  
+              <Box
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+              >
+                <Text align="left" weight="500" color="black" size="24">
                   {formatNumber(followers)}
                 </Text>
                 <Spacer size="4" />
-                <Text align="left" color="grey" size="12">
+                <Text align="left" color="grey" size="24">
                   Followers
                 </Text>
               </Box>
             </Box>
+          </Box>
+
+          <Spacer size="24" />
+  
+          {/* Additional Section */}
+          <Box
+            backgroundColor="bg"
+            flex="1"
+            display="flex"
+            flexDirection="column"
+          >
+            <text 
+              style={{
+                border: "none",
+                color: "black",
+                fontSize: "64px",
+                fontWeight: "500",
+                width: "100%",
+                resize: "none",
+                outline: "none",
+              }}
+            >
+              Pay {displayName}
+            </text>
+            <Spacer size="6" />
+           
+            <text 
+              style={{
+                border: "none",
+                color: "grey",
+                fontSize: "32px",
+                fontWeight: "400",
+                width: "100%",
+                resize: "none",
+                outline: "none",
+              }}
+            >
+              Pay {displayName} with any token and they will receive ETH on Base.
+            </text>
+            <Spacer size="10" />
+          </Box>
+        </Box>
+
+        <Box
+          borderRadius="14"
+          padding="14"
+          background="blue"
+          height="128"
+          width="100%"
+          justifyContent="center"
+        >
+          <Box flexDirection="row" alignItems="center" display="flex">
+            <box style={{ transform: "rotate(-68.01deg)" }}>
+              <Icon name="undo" color="white" size="48" />
+            </box>
+            <Spacer size="10" />
+            <text 
+              style={{
+                border: "none",
+                color: "white",
+                fontSize: "32px",
+                fontWeight: "500",
+                width: "100%",
+                resize: "none",
+                outline: "none",
+              }}
+            >
+              Enter the amount and token you want to send
+            </text>
           </Box>
         </Box>
       </Box>
@@ -1044,3 +1128,7 @@ if (typeof Bun !== "undefined") {
   });
   console.log("Server is running on port 3000");
 }
+
+
+// Uncomment for local server testing
+devtools(app, { serveStatic });

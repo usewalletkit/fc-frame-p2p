@@ -7,7 +7,7 @@
     "serve": "bun run src/index.tsx"
   },
   "dependencies": {
-    "@paywithglide/glide-js": "^0.9.11",
+    "@paywithglide/glide-js": "^0.9.18",
     "dotenv": "^16.4.5",
     "frog": "latest",
     "hono": "^4",
@@ -16,6 +16,7 @@
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.8",
     "@types/bun": "latest",
+    "@types/node": "^22.5.0",
     "bun": "latest"
   }
 }
