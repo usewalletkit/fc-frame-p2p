@@ -17,10 +17,6 @@ import { glideConfig } from "../lib/glide.js";
 import { formatUnits, hexToBigInt } from "viem";
 import { parseFullName } from 'parse-full-name';
 
-// Uncomment this packages to tested on local server
-import { devtools } from 'frog/dev'
-import { serveStatic } from 'frog/serve-static'
-
 dotenv.config();
 
 export const app = new Frog({
@@ -1231,7 +1227,3 @@ if (typeof Bun !== "undefined") {
   });
   console.log("Server is running on port 3000");
 }
-
-
-// Uncomment for local server testing
-devtools(app, { serveStatic });
