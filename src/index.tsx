@@ -15,6 +15,7 @@ import {
 } from "@paywithglide/glide-js";
 import { glideConfig } from "../lib/glide.js";
 import { formatUnits, hexToBigInt } from "viem";
+import { parseFullName } from 'parse-full-name';
 
 // Uncomment this packages to tested on local server
 import { devtools } from 'frog/dev'
@@ -27,8 +28,8 @@ export const app = new Frog({
   title: "Pay with Glide - send tokens to anyone from any chain",
   imageAspectRatio: "1:1",
   imageOptions: {
-    height: 800,
-    width: 800,
+    height: 1024,
+    width: 1024,
   },
   headers: {
     "cache-control":
@@ -47,6 +48,14 @@ const truncateText = (text: string, maxLength: number) => {
     return text.slice(0, maxLength) + '...';
   }
   return text;
+};
+
+// Function to format number
+function formatNumber(num: number) {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  }
+  return num.toString();
 };
 
 
@@ -90,7 +99,7 @@ app.image("/initial-image", (c) => {
                 {
                   border: "none",
                   color: "black",
-                  fontSize: "64px",
+                  fontSize: "80px",
                   fontWeight: "500",
                   width: "100%",
                   resize: "none",
@@ -109,7 +118,7 @@ app.image("/initial-image", (c) => {
                 {
                   border: "none",
                   color: "grey",
-                  fontSize: "32px",
+                  fontSize: "42px",
                   fontWeight: "400",
                   width: "100%",
                   resize: "none",
@@ -212,23 +221,15 @@ app.image("/review-image/:toFid", async (c) => {
 
   const pfpUrl = user.pfp_url;
 
-  const displayName =
-    user.display_name.length >= 15
-      ? user.display_name.substring(0, 15) + "..."
-      : user.display_name;
+  const parsedName = parseFullName(user.display_name);
+
+  const displayName = parsedName.first;
 
   const username = user.username;
 
   const bio = user.profile.bio.text;
 
   const followers = user.follower_count;
-
-  function formatNumber(num: number) {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "K";
-    }
-    return num.toString();
-  }
 
   return c.res({
     headers: {
@@ -259,8 +260,8 @@ app.image("/review-image/:toFid", async (c) => {
           >
             {/* Image */}
             <img
-              width="200"
-              height="200"
+              width="256"
+              height="256"
               src={pfpUrl}
               style={{
                 borderRadius: "20px",
@@ -297,7 +298,7 @@ app.image("/review-image/:toFid", async (c) => {
                 <Text align="left" weight="500" color="black" size="24">
                   {formatNumber(followers)}
                 </Text>
-                <Spacer size="4" />
+                <Spacer size="6" />
                 <Text align="left" color="grey" size="24">
                   Followers
                 </Text>
@@ -305,12 +306,11 @@ app.image("/review-image/:toFid", async (c) => {
             </Box>
           </Box>
 
-          <Spacer size="24" />
+          <Spacer size="60" />
   
           {/* Additional Section */}
           <Box
             backgroundColor="bg"
-            flex="1"
             display="flex"
             flexDirection="column"
           >
@@ -318,31 +318,32 @@ app.image("/review-image/:toFid", async (c) => {
               style={{
                 border: "none",
                 color: "black",
-                fontSize: "64px",
+                fontSize: "80px",
                 fontWeight: "500",
                 width: "100%",
                 resize: "none",
                 outline: "none",
+                lineHeight: "0.9"
               }}
             >
               Pay {displayName}
             </text>
-            <Spacer size="6" />
-           
+
+            <Spacer size="10" />
+  
             <text 
               style={{
                 border: "none",
                 color: "grey",
-                fontSize: "32px",
+                fontSize: "42px",
                 fontWeight: "400",
                 width: "100%",
                 resize: "none",
                 outline: "none",
               }}
             >
-              Pay {displayName} with any token and they will receive ETH on Base.
+              Pay with any token and they will receive ETH on Base.
             </text>
-            <Spacer size="10" />
           </Box>
         </Box>
 
@@ -356,14 +357,14 @@ app.image("/review-image/:toFid", async (c) => {
         >
           <Box flexDirection="row" alignItems="center" display="flex">
             <box style={{ transform: "rotate(-68.01deg)" }}>
-              <Icon name="undo" color="white" size="48" />
+              <Icon name="undo" color="white" size="60" />
             </box>
             <Spacer size="10" />
             <text 
               style={{
                 border: "none",
                 color: "white",
-                fontSize: "32px",
+                fontSize: "42px",
                 fontWeight: "500",
                 width: "100%",
                 resize: "none",
@@ -615,9 +616,15 @@ app.image(
 
     const pfpUrl = user.pfp_url;
 
-    const displayName = user.display_name;
+    const parsedName = parseFullName(user.display_name);
+
+    const displayName = parsedName.first;
 
     const username = user.username;
+
+    const bio = user.profile.bio.text;
+
+    const followers = user.follower_count;
 
     return c.res({
       headers: {
@@ -629,128 +636,188 @@ app.image(
           grow
           alignVertical="center"
           backgroundColor="bg"
-          padding="32"
-          textAlign="center"
+          padding="48"
+          textAlign="left"
           height="100%"
+          width="100%"
         >
-          <Image height="28" objectFit="cover" src="/images/primary.png" />
-
-          <Box backgroundColor="bg" alignHorizontal="center">
-            <img
-              height="96"
-              width="96"
-              src={pfpUrl}
-              style={{
-                borderRadius: "15%",
-                objectFit: "cover",
-              }}
-            />
-          </Box>
-
-          <Spacer size="4" />
-
-          <Text align="center" color="black" weight="600" size="24">
-            Pay {displayName}
-          </Text>
-
-          <Spacer size="10" />
-
-          <Text align="center" color="grey" weight="400" size="14">
-            @{username}
-          </Text>
-
-          <Spacer size="10" />
-
-          <Text align="center" weight="400" color="grey" size="16">
-            You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on{" "}
-            {chainStr}.
-          </Text>
-
-          <Spacer size="6" />
-
-          <Text align="center" weight="400" color="grey" size="16">
-            {displayName} will receive {displayReceivedEthValue} ETH on Base.
-          </Text>
-
-          <Spacer size="32" />
-
-          <Box grow flexDirection="row" gap="8">
+          <Box grow flexDirection="column" padding="20" gap="8" alignItems="center">
+            
+            {/* Text and Image Section */}
             <Box
+              grow
               backgroundColor="bg"
               flex="1"
-              height="60"
-              alignHorizontal="center"
-            />
-
+              flexDirection="row"
+              alignItems="center"
+              width="100%"
+              overflow="hidden"
+              position="relative"
+            >
+              {/* Image */}
+              <img
+                width="256"
+                height="256"
+                src={pfpUrl}
+                style={{
+                  borderRadius: "20px",
+                  objectFit: "cover",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  display: "block",
+                }}
+              />
+              <Spacer size="24" />
+              
+              {/* Text Container */}
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="flex-start"
+                flex="1"
+              >
+                <Text align="left" weight="500" color="grey" size="24">
+                  @{username}
+                </Text>
+                <Spacer size="6" />
+        
+                <Text align="left" weight="400" color="black" size="24">
+                  {truncateText(bio, 25)}
+                </Text>
+                <Spacer size="10" />
+        
+                <Box
+                  display="flex"
+                  flexDirection="row"
+                  alignItems="center"
+                >
+                  <Text align="left" weight="500" color="black" size="24">
+                    {formatNumber(followers)}
+                  </Text>
+                  <Spacer size="6" />
+                  <Text align="left" color="grey" size="24">
+                    Followers
+                  </Text>
+                </Box>
+              </Box>
+            </Box>
+      
+            <Spacer size="60" />
+        
+            {/* Payment Details Section */}
             <Box
               backgroundColor="bg"
-              flex="2"
-              height="60"
-              alignHorizontal="center"
+              display="flex"
+              flexDirection="column"
+              padding="0"
+              width="100%"
             >
-              <Text align="right" weight="600" color="grey" size="12">
+              <text 
+                style={{
+                  border: "none",
+                  color: "black",
+                  fontSize: "80px",
+                  fontWeight: "500",
+                  width: "100%",
+                  resize: "none",
+                  outline: "none",
+                  lineHeight: "0.9"
+                }}
+              >
+                Pay {displayName}
+              </text>
+      
+              <Spacer size="10" />
+        
+              <text 
+                style={{
+                  border: "none",
+                  color: "grey",
+                  fontSize: "44px",
+                  fontWeight: "400",
+                  width: "100%",
+                  resize: "none",
+                  outline: "none",
+                }}
+              >
+                You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on{" "}{chainStr}.
+              </text>
+            </Box>
+          </Box>
+        
+          {/* Transaction Summary Section */}
+          <Box
+            flexDirection="row"
+            background="bg"
+            paddingLeft="20"
+            paddingRight="20"
+            borderRadius="14"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            {/* You Send Section */}
+            <Box 
+              backgroundColor="bg" 
+              flex="2"
+              alignHorizontal="left"
+            >
+              <Text align="right" weight="600" color="grey" size="20">
                 YOU SEND
               </Text>
-
+    
               <Spacer size="8" />
-
+  
               <Box flexDirection="row">
                 <Image
-                  height="22"
+                  width="26"
+                  height="26"
                   objectFit="cover"
                   src={paymentCurrencyLogoUrl}
                 />
                 <Spacer size="8" />
-                <Text align="center" weight="600" color="black" size="20">
+                <Text align="center" weight="500" color="black" size="24">
                   {displayPaymentAmount} {paymentCurrencyUpperCase}
                 </Text>
               </Box>
             </Box>
-
+      
+            {/* Arrow Icon */}
             <Box
               backgroundColor="bg"
               flex="1"
               alignHorizontal="center"
               justifyContent="center"
-              height="60"
+              display="flex"
             >
-              <Icon name="move-right" color="green" size="32" />
+              <Icon name="move-right" color="grey" size="60" />
             </Box>
-
+      
+            {/* They Receive Section */}
             <Box
               backgroundColor="bg"
               flex="2"
-              height="60"
-              alignHorizontal="center"
+              alignHorizontal="right"
             >
-              <Text align="center" weight="600" color="grey" size="12">
+              <Text align="right" weight="600" color="grey" size="20">
                 THEY RECEIVE
               </Text>
-
               <Spacer size="8" />
-
               <Box flexDirection="row">
                 <Image
-                  height="22"
+                  width="26"
+                  height="26"
                   objectFit="cover"
                   src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"
                 />
                 <Spacer size="8" />
-                <Text align="center" weight="600" color="black" size="20">
+                <Text align="right" weight="500" color="black" size="24">
                   {displayReceivedEthValue} ETH
                 </Text>
               </Box>
             </Box>
-
-            <Box
-              backgroundColor="bg"
-              flex="1"
-              height="60"
-              alignHorizontal="center"
-            />
           </Box>
         </Box>
-      ),
+      ),      
     });
   },
 );

@@ -11,12 +11,14 @@
     "dotenv": "^16.4.5",
     "frog": "latest",
     "hono": "^4",
+    "parse-full-name": "^1.2.6",
     "viem": "^2.18.8"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.8",
     "@types/bun": "latest",
     "@types/node": "^22.5.0",
+    "@types/parse-full-name": "^1.2.5",
     "bun": "latest"
   }
 }
