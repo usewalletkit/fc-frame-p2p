@@ -58,6 +58,9 @@ function formatNumber(num: number) {
   return num.toString();
 };
 
+// URL for the public server
+const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:5173";
+
 
 app.frame("/", (c) => {
   return c.res({
@@ -434,6 +437,18 @@ app.frame("/send/:toFid", async (c) => {
       case "polygon":
         chainId = "polygon";
         break;
+      case "degen":
+        chainId = "degen";
+        break;
+      case "zora":
+        chainId = "zora";
+        break;
+      case "avax":
+        chainId = "avax";
+        break;
+      case "blast":
+        chainId = "blast";
+        break;
       // Add other chains as needed
       default:
         chainId = "base";
@@ -537,7 +552,7 @@ app.image(
     switch (chainStr) {
       case "Ethereum":
         paymentCurrencyLogoUrl =
-          "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032";
+          `${PUBLIC_URL}/chains/ethereum.png`;
         switch (paymentCurrencyUpperCase) {
           case "USDC":
             paymentCurrencyLogoUrl =
@@ -551,64 +566,40 @@ app.image(
         break;
       case "Base":
         paymentCurrencyLogoUrl =
-          "https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-product/Base_Network_Logo.png";
-        switch (paymentCurrencyUpperCase) {
-          case "USDC":
-            paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
-            break;
-          case "USDT":
-            paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
-            break;
-        }
+          `${PUBLIC_URL}/chains/base.png`;
         break;
       case "Optimism":
         paymentCurrencyLogoUrl =
-          "https://cryptologos.cc/logos/optimism-ethereum-op-logo.png?v=032";
-        switch (paymentCurrencyUpperCase) {
-          case "USDC":
-            paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
-            break;
-          case "USDT":
-            paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
-            break;
-        }
+          `${PUBLIC_URL}/chains/optimism.png`;
         break;
       case "Arbitrum":
         paymentCurrencyLogoUrl =
-          "https://cryptologos.cc/logos/arbitrum-arb-logo.png?v=032";
-        switch (paymentCurrencyUpperCase) {
-          case "USDC":
-            paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
-            break;
-          case "USDT":
-            paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
-            break;
-        }
+          `${PUBLIC_URL}/chains/arbitrum.png`;
         break;
       case "Polygon":
         paymentCurrencyLogoUrl =
-          "https://cryptologos.cc/logos/polygon-matic-logo.png?v=032";
-        switch (paymentCurrencyUpperCase) {
-          case "USDC":
-            paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
-            break;
-          case "USDT":
-            paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
-            break;
-        }
+          `${PUBLIC_URL}/chains/polygon.png`;
+        break;
+      case "Degen":
+        paymentCurrencyLogoUrl =
+          `${PUBLIC_URL}/chains/degen.png`;
+        break;
+      case "Zora":
+        paymentCurrencyLogoUrl =
+          `${PUBLIC_URL}/chains/zora.png`;
+        break;
+      case "Avax":
+        paymentCurrencyLogoUrl =
+          `${PUBLIC_URL}/chains/avax.png`;
+        break;
+      case "Blast":
+        paymentCurrencyLogoUrl =
+          `${PUBLIC_URL}/chains/blast.png`;
         break;
       // Add other currencies as needed
       default:
         paymentCurrencyLogoUrl =
-          "https://raw.githubusercontent.com/base-org/brand-kit/main/logo/in-product/Base_Network_Logo.png";
+        `${PUBLIC_URL}/chains/base.png`;
         break;
     }
 
@@ -749,9 +740,7 @@ app.image(
           <Box
             flexDirection="row"
             background="bg"
-            paddingLeft="20"
-            paddingRight="20"
-            borderRadius="14"
+            padding="20"
             alignItems="center"
             justifyContent="space-between"
           >
@@ -769,15 +758,25 @@ app.image(
   
               <Box flexDirection="row">
                 <Image
-                  width="26"
-                  height="26"
+                  width="28"
+                  height="28"
                   objectFit="cover"
                   src={paymentCurrencyLogoUrl}
                 />
                 <Spacer size="8" />
-                <Text align="center" weight="500" color="black" size="24">
+                <text 
+                  style={{
+                    border: "none",
+                    color: "black",
+                    fontSize: "42px",
+                    fontWeight: "500",
+                    width: "100%",
+                    resize: "none",
+                    outline: "none",
+                  }}
+                >
                   {displayPaymentAmount} {paymentCurrencyUpperCase}
-                </Text>
+                </text>
               </Box>
             </Box>
       
@@ -804,15 +803,23 @@ app.image(
               <Spacer size="8" />
               <Box flexDirection="row">
                 <Image
-                  width="26"
-                  height="26"
+                  width="28"
+                  height="28"
                   objectFit="cover"
-                  src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"
+                  src={`${PUBLIC_URL}/chains/eth_base.png`}
                 />
                 <Spacer size="8" />
-                <Text align="right" weight="500" color="black" size="24">
+                <text 
+                  style={{
+                    border: "none",
+                    color: "black",
+                    fontSize: "42px",
+                    fontWeight: "500",
+                    textAlign: "right",
+                  }}
+                >
                   {displayReceivedEthValue} ETH
-                </Text>
+                </text>
               </Box>
             </Box>
           </Box>
