@@ -8,7 +8,7 @@ export const { Box, Image, Icon, Text, VStack, Spacer, vars } = createSystem({
     black: "rgb(32,32,32)",
     grey: "rgba(111, 111, 111, 1)",
     blue: "rgb(68,137,255)",
-    green: "rgb(4,221,76)",
+    green: "rgba(52, 168, 83, 1)",
     process: "rgb(255, 204, 0)", // or rgb(220,209,191)
   },
   fonts: {

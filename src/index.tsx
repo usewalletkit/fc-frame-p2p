@@ -86,7 +86,7 @@ app.image("/initial-image", (c) => {
       >
         <Box 
           grow 
-          backgroundImage="url(https://s3-alpha-sig.figma.com/img/c2ca/2452/3601c6e757fc38f6cdab466afe5a7422?Expires=1725235200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=Au63Mt8dE2Oe2lSI-ss974mRk1ddK~LoRizIt~vDCv69j~uCJs6gSGGyS7DJKwvpDNxccO5VoLa~m1vUYp8fYvJ1AWjoZOZo-~hcWT0ut55mOriAwvhYwvM~GX0Uikh8T1r103NLQWn4J4Ue2hCxpJGMFxuDlhnSCgPPEy2ritA6cILoCH54xQ6J3LlgcPP59hrv-IYMocRJOBjxRkUiLfktQhDFsOGXRviqmmLWVQCYaFAg7-n3WeVEVoArQLt0IH7qtgwvtBTaSm7LC9sirvhLa5prQeoaI9ibRWDHbLshcLm7lv~xBTokHYHEOiWx2tbZLf-xf7HmSBgHZSsasg__)"
+          backgroundImage={`url(${PUBLIC_URL}/images/bg.png)`}
           borderRadius="18"
           flexDirection="column" 
           justifyContent="flex-end" 
@@ -516,7 +516,7 @@ app.frame("/send/:toFid", async (c) => {
       const paymentCurrencyUpperCase = paymentCurrency.toUpperCase();
 
       return c.res({
-        action: `/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+        action: `/tx-status/${sessionId}/${fromFid}/${toFid}/${displayReceivedEthValue}`,
         image: `/send-image/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${chainStr}/${paymentCurrencyUpperCase}`,
         intents: [
           <Button.Transaction target={`/send-tx/${sessionId}`}>
@@ -864,7 +864,7 @@ app.transaction(
 );
 
 app.frame(
-  "/tx-status/:sessionId/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase",
+  "/tx-status/:sessionId/:fromFid/:toFid/:displayReceivedEthValue",
   async (c) => {
     const { transactionId, buttonValue } = c;
 
@@ -872,9 +872,7 @@ app.frame(
       sessionId,
       fromFid,
       toFid,
-      displayPaymentAmount,
       displayReceivedEthValue,
-      paymentCurrencyUpperCase,
     } = c.req.param();
 
     // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
@@ -907,7 +905,7 @@ app.frame(
       // If the session has a sponsoredTransactionHash, it means the transaction is complete
       if (session.sponsoredTransactionHash) {
         return c.res({
-          image: `/tx-success/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+          image: `/tx-success/${fromFid}/${toFid}/${displayReceivedEthValue}`,
           intents: [
             <Button.Link
               href={`https://basescan.org/tx/${session.sponsoredTransactionHash}`}
@@ -919,11 +917,11 @@ app.frame(
       } else {
         // If the session does not have a sponsoredTransactionHash, the payment is still pending
         return c.res({
-          image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+          image: `/tx-processing/${fromFid}/${toFid}/${displayReceivedEthValue}`,
           intents: [
             <Button
               value={txHash}
-              action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}
+              action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayReceivedEthValue}`}
             >
               Refresh
             </Button>,
@@ -934,11 +932,11 @@ app.frame(
       console.error("Error:", e);
 
       return c.res({
-        image: `/tx-processing/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`,
+        image: `/tx-processing/${fromFid}/${toFid}/${displayReceivedEthValue}`,
         intents: [
           <Button
             value={txHash}
-            action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayPaymentAmount}/${displayReceivedEthValue}/${paymentCurrencyUpperCase}`}
+            action={`/tx-status/${sessionId}/${fromFid}/${toFid}/${displayReceivedEthValue}`}
           >
             Refresh
           </Button>,
@@ -948,15 +946,14 @@ app.frame(
   },
 );
 
+
 app.image(
-  "/tx-processing/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase",
+  "/tx-processing/:fromFid/:toFid/:displayReceivedEthValue",
   async (c) => {
     const {
       fromFid,
       toFid,
-      displayPaymentAmount,
       displayReceivedEthValue,
-      paymentCurrencyUpperCase,
     } = c.req.param();
 
     const [fromUser, toUser] = await Promise.all([
@@ -966,27 +963,29 @@ app.image(
 
     const fromPfpUrl = fromUser.pfp_url;
     const toPfpUrl = toUser.pfp_url;
-    const toDisplayName = toUser.display_name;
+
+    const parsedName = parseFullName(toUser.display_name);
+    const toDisplayName = parsedName.first;
 
     return c.res({
       image: (
         <Box
           grow
-          alignVertical="center"
+          alignHorizontal="center"
           backgroundColor="bg"
-          padding="32"
+          paddingBottom="80"
           textAlign="center"
           height="100%"
+          width="100%"
         >
-          <Image height="28" objectFit="cover" src="/images/primary.png" />
 
           <Box
-            backgroundColor="bg"
+            grow
+            backgroundColor="green"
             position="relative"
             display="flex"
             justifyContent="center"
             alignHorizontal="center"
-            marginTop="20"
             marginLeft="10"
           >
             <Box
@@ -994,10 +993,11 @@ app.image(
               display="flex"
               justifyContent="center"
               backgroundColor="green"
+              marginTop="160"
             >
               <img
-                height="96"
-                width="96"
+                height="256"
+                width="256"
                 src={fromPfpUrl}
                 style={{
                   borderRadius: "50%",
@@ -1008,8 +1008,8 @@ app.image(
               />
 
               <img
-                height="96"
-                width="96"
+                height="256"
+                width="256"
                 src={toPfpUrl}
                 style={{
                   borderRadius: "50%",
@@ -1021,49 +1021,62 @@ app.image(
             </Box>
           </Box>
 
-          <Spacer size="32" />
-
-          <Text align="center" color="black" weight="600" size="24">
-            Sent!
-          </Text>
-
-          <Spacer size="6" />
-
-          <Text align="center" color="grey" weight="600" size="14">
-            {displayPaymentAmount} {paymentCurrencyUpperCase}
-          </Text>
-
           <Spacer size="16" />
 
-          <Text align="center" weight="400" color="grey" size="16">
-            Your transaction is underway.
-          </Text>
+          <text 
+            style={{
+              color: "black",
+              fontSize: "80px",
+              fontWeight: "500",
+              textAlign: "center",
+            }}
+          >
+            Sent!
+          </text>
 
-          <Spacer size="6" />
-
-          <Text align="center" weight="400" color="grey" size="16">
-            {toDisplayName} will receive {displayReceivedEthValue} ETH on Base
-            shortly.
-          </Text>
+          <Spacer size="16" />
+          
+          <Box
+            paddingLeft="192"
+            paddingRight="192"
+          >
+            <text 
+              style={{
+                color: "grey",
+                fontSize: "42px",
+                fontWeight: "400",
+                textAlign: "center",
+              }}
+            >
+              {toDisplayName} will receive {displayReceivedEthValue} ETH on Base.
+            </text>
+          </Box>
 
           <Spacer size="32" />
 
-          <Text align="center" weight="600" color="grey" size="14">
+          <Text align="center" weight="600" color="grey" size="20">
             STATUS
           </Text>
 
-          <Spacer size="16" />
+          <Spacer size="10" />
 
           <Box
             flexDirection="row"
             alignItems="flex-start"
             justifyContent="center"
           >
-            <Icon name="clock" color="process" size="22" />
+            <Icon name="clock" color="process" size="30" />
             <Spacer size="6" />
-            <Text align="center" weight="600" color="black" size="20">
+            <text 
+              style={{
+                color: "black",
+                fontSize: "42px",
+                fontWeight: "500",
+                textAlign: "center",
+              }}
+            >
               Processing
-            </Text>
+            </text>
           </Box>
         </Box>
       ),
@@ -1071,15 +1084,14 @@ app.image(
   },
 );
 
+
 app.image(
-  "/tx-success/:fromFid/:toFid/:displayPaymentAmount/:displayReceivedEthValue/:paymentCurrencyUpperCase",
+  "/tx-success/:fromFid/:toFid/:displayReceivedEthValue",
   async (c) => {
     const {
       fromFid,
       toFid,
-      displayPaymentAmount,
       displayReceivedEthValue,
-      paymentCurrencyUpperCase,
     } = c.req.param();
 
     const [fromUser, toUser] = await Promise.all([
@@ -1089,27 +1101,29 @@ app.image(
 
     const fromPfpUrl = fromUser.pfp_url;
     const toPfpUrl = toUser.pfp_url;
-    const toDisplayName = toUser.display_name;
+
+    const parsedName = parseFullName(toUser.display_name);
+    const toDisplayName = parsedName.first;
 
     return c.res({
       image: (
         <Box
           grow
-          alignVertical="center"
+          alignHorizontal="center"
           backgroundColor="bg"
-          padding="32"
+          paddingBottom="80"
           textAlign="center"
           height="100%"
+          width="100%"
         >
-          <Image height="28" objectFit="cover" src="/images/primary.png" />
 
           <Box
-            backgroundColor="bg"
+            grow
+            backgroundColor="green"
             position="relative"
             display="flex"
             justifyContent="center"
             alignHorizontal="center"
-            marginTop="20"
             marginLeft="10"
           >
             <Box
@@ -1117,10 +1131,11 @@ app.image(
               display="flex"
               justifyContent="center"
               backgroundColor="green"
+              marginTop="160"
             >
               <img
-                height="96"
-                width="96"
+                height="256"
+                width="256"
                 src={fromPfpUrl}
                 style={{
                   borderRadius: "50%",
@@ -1131,8 +1146,8 @@ app.image(
               />
 
               <img
-                height="96"
-                width="96"
+                height="256"
+                width="256"
                 src={toPfpUrl}
                 style={{
                   borderRadius: "50%",
@@ -1144,55 +1159,69 @@ app.image(
             </Box>
           </Box>
 
-          <Spacer size="32" />
-
-          <Text align="center" color="black" weight="600" size="24">
-            Sent!
-          </Text>
-
-          <Spacer size="6" />
-
-          <Text align="center" color="grey" weight="600" size="14">
-            {displayPaymentAmount} {paymentCurrencyUpperCase}
-          </Text>
-
           <Spacer size="16" />
 
-          <Text align="center" weight="400" color="grey" size="16">
-            Your transaction is underway.
-          </Text>
+          <text 
+            style={{
+              color: "black",
+              fontSize: "80px",
+              fontWeight: "500",
+              textAlign: "center",
+            }}
+          >
+            Sent!
+          </text>
 
-          <Spacer size="6" />
-
-          <Text align="center" weight="400" color="grey" size="16">
-            {toDisplayName} will receive {displayReceivedEthValue} ETH on Base
-            shortly.
-          </Text>
+          <Spacer size="16" />
+          
+          <Box
+            paddingLeft="192"
+            paddingRight="192"
+          >
+            <text 
+              style={{
+                color: "grey",
+                fontSize: "42px",
+                fontWeight: "400",
+                textAlign: "center",
+              }}
+            >
+              {toDisplayName} will receive {displayReceivedEthValue} ETH on Base.
+            </text>
+          </Box>
 
           <Spacer size="32" />
 
-          <Text align="center" weight="600" color="grey" size="14">
+          <Text align="center" weight="600" color="grey" size="20">
             STATUS
           </Text>
 
-          <Spacer size="16" />
+          <Spacer size="10" />
 
           <Box
             flexDirection="row"
             alignItems="flex-start"
             justifyContent="center"
           >
-            <Icon name="circle-check" color="green" size="22" />
+            <Icon name="circle-check" color="green" size="30" />
             <Spacer size="6" />
-            <Text align="center" weight="600" color="black" size="20">
+            <text 
+              style={{
+                color: "black",
+                fontSize: "42px",
+                fontWeight: "500",
+                textAlign: "center",
+              }}
+            >
               Success
-            </Text>
+            </text>
           </Box>
         </Box>
       ),
     });
   },
 );
+
 
 if (typeof Bun !== "undefined") {
   app.use("/*", (await import("hono/bun")).serveStatic({ root: "./public" }));
