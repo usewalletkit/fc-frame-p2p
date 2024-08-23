@@ -54,7 +54,7 @@ app.frame("/", (c) => {
   return c.res({
     image: "/initial-image",
     intents: [
-      <TextInput placeholder="Enter a Farcaster or ENS name (ex. v or dwr.eth)" />,
+      <TextInput placeholder="Who's it going to? ex. dwr.eth" />,
       <Button action="/review"> Continue </Button>,
     ],
   });
@@ -187,7 +187,7 @@ app.frame("/review", async (c) => {
     return c.res({
       image: `/review-image/${toFid}`,
       intents: [
-        <TextInput placeholder="Ex. 1 usdc, 0.1 eth on base, or 100 meow" />,
+        <TextInput placeholder="Ex. 0.1 eth on zora or 100 meow" />,
         <Button action={`/send/${toFid}`}> Review </Button>,
       ],
     });
