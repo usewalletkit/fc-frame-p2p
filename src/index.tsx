@@ -564,7 +564,7 @@ app.image(
     switch (chainStr) {
       case "Ethereum":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/ethereum.png`;
+          `${PUBLIC_URL}/chains/ethereum/icon.png`;
         switch (paymentCurrencyUpperCase) {
           case "USDC":
             paymentCurrencyLogoUrl =
@@ -579,39 +579,65 @@ app.image(
       case "Base":
         paymentCurrencyLogoUrl =
           `${PUBLIC_URL}/chains/base.png`;
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/base/tokens/usdc_base.png`;
+            break;
+        }
         break;
       case "Optimism":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/optimism.png`;
+          `${PUBLIC_URL}/chains/optimism/icon.png`;
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/optimism/tokens/usdc_op.png`;
+            break;
+          case "ETH":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/optimism/tokens/eth_op.png`;
+            break;
+        }
         break;
       case "Arbitrum":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/arbitrum.png`;
+          `${PUBLIC_URL}/chains/arbitrum/icon.png`;
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/arbitrum/tokens/usdc_arb.png`;
+            break;
+          case "ETH":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/arbitrum/tokens/eth_arb.png`;
+            break;
+        }
         break;
       case "Polygon":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/polygon.png`;
+          `${PUBLIC_URL}/chains/polygon/icon.png`;
         break;
       case "Degen":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/degen.png`;
+          `${PUBLIC_URL}/chains/degen/icon.png`;
         break;
       case "Zora":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/zora.png`;
+          `${PUBLIC_URL}/chains/zora/icon.png`;
         break;
       case "Avax":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/avax.png`;
+          `${PUBLIC_URL}/chains/avax/icon.png`;
         break;
       case "Blast":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/blast.png`;
+          `${PUBLIC_URL}/chains/blast/icon.png`;
         break;
       // Add other currencies as needed
       default:
         paymentCurrencyLogoUrl =
-        `${PUBLIC_URL}/chains/base.png`;
+        `${PUBLIC_URL}/chains/base/icon.png`;
         break;
     }
 
@@ -819,7 +845,7 @@ app.image(
                   width="28"
                   height="28"
                   objectFit="cover"
-                  src={`${PUBLIC_URL}/chains/eth_base.png`}
+                  src={`${PUBLIC_URL}/chains/base/tokens/eth_base.png`}
                 />
                 <Spacer size="8" />
                 <text 
