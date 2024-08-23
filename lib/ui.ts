@@ -3,7 +3,7 @@ import { createSystem } from "frog/ui";
 export const { Box, Image, Icon, Text, VStack, Spacer, vars } = createSystem({
   colors: {
     bg: "rgb(255,255,255)",
-    text_bg: "rgba(250, 250, 250, 0.9)",
+    text_bg: "rgba(250, 250, 250, 0.95)",
     white: "rgb(245,254,255)",
     black: "rgb(32,32,32)",
     grey: "rgba(111, 111, 111, 1)",
