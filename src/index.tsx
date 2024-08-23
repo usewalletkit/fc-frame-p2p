@@ -639,18 +639,21 @@ app.image(
           "no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0",
       },
       image: (
-        <Box
-          grow
-          alignVertical="center"
-          backgroundColor="bg"
-          padding="48"
+        <Box 
+          grow 
+          backgroundColor="bg" 
+          flexDirection="column" 
+          gap="8"
+          paddingTop="48"
+          paddingLeft="28"
+          paddingRight="28"
+          paddingBottom="48"
           textAlign="left"
           height="100%"
           width="100%"
         >
-          <Box grow flexDirection="column" padding="20" gap="8" alignItems="center">
-            
-            {/* Text and Image Section */}
+
+          <Box backgroundColor="bg" flex="1" >
             <Box
               grow
               backgroundColor="bg"
@@ -687,12 +690,12 @@ app.image(
                   @{username}
                 </Text>
                 <Spacer size="6" />
-        
+    
                 <Text align="left" weight="400" color="black" size="24">
-                  {truncateText(bio, 25)}
+                  {truncate(bio, 60) + (Buffer.byteLength(bio, 'utf8') > 60 ? '...' : '')}
                 </Text>
                 <Spacer size="10" />
-        
+    
                 <Box
                   display="flex"
                   flexDirection="row"
@@ -708,16 +711,15 @@ app.image(
                 </Box>
               </Box>
             </Box>
-      
-            <Spacer size="60" />
-        
-            {/* Payment Details Section */}
+          </Box>
+
+          <Spacer size="60" />
+          
+          <Box backgroundColor="bg" flex="1" >
             <Box
               backgroundColor="bg"
               display="flex"
               flexDirection="column"
-              padding="0"
-              width="100%"
             >
               <text 
                 style={{
@@ -733,14 +735,14 @@ app.image(
               >
                 Pay {displayName}
               </text>
-      
+
               <Spacer size="10" />
-        
+    
               <text 
                 style={{
                   border: "none",
                   color: "grey",
-                  fontSize: "44px",
+                  fontSize: "52px",
                   fontWeight: "400",
                   width: "100%",
                   resize: "none",
@@ -751,12 +753,11 @@ app.image(
               </text>
             </Box>
           </Box>
-        
+
           {/* Transaction Summary Section */}
           <Box
             flexDirection="row"
             background="bg"
-            padding="20"
             alignItems="center"
             justifyContent="space-between"
           >
@@ -765,6 +766,7 @@ app.image(
               backgroundColor="bg" 
               flex="2"
               alignHorizontal="left"
+              padding="0"
             >
               <Text align="right" weight="600" color="grey" size="20">
                 YOU SEND
@@ -840,7 +842,7 @@ app.image(
             </Box>
           </Box>
         </Box>
-      ),      
+      ),    
     });
   },
 );
@@ -989,7 +991,7 @@ app.image(
           grow
           alignHorizontal="center"
           backgroundColor="bg"
-          paddingBottom="80"
+          paddingBottom="48"
           textAlign="center"
           height="100%"
           width="100%"
@@ -1037,8 +1039,6 @@ app.image(
             </Box>
           </Box>
 
-          <Spacer size="16" />
-
           <text 
             style={{
               color: "black",
@@ -1050,7 +1050,7 @@ app.image(
             Sent!
           </text>
 
-          <Spacer size="16" />
+          <Spacer size="10" />
           
           <Box
             paddingLeft="192"
@@ -1068,7 +1068,7 @@ app.image(
             </text>
           </Box>
 
-          <Spacer size="32" />
+          <Spacer size="96" />
 
           <Text align="center" weight="600" color="grey" size="20">
             STATUS
@@ -1091,7 +1091,7 @@ app.image(
                 textAlign: "center",
               }}
             >
-              Processing
+              In progress
             </text>
           </Box>
         </Box>
@@ -1127,7 +1127,7 @@ app.image(
           grow
           alignHorizontal="center"
           backgroundColor="bg"
-          paddingBottom="80"
+          paddingBottom="48"
           textAlign="center"
           height="100%"
           width="100%"
@@ -1175,8 +1175,6 @@ app.image(
             </Box>
           </Box>
 
-          <Spacer size="16" />
-
           <text 
             style={{
               color: "black",
@@ -1188,7 +1186,7 @@ app.image(
             Sent!
           </text>
 
-          <Spacer size="16" />
+          <Spacer size="10" />
           
           <Box
             paddingLeft="192"
@@ -1206,7 +1204,7 @@ app.image(
             </text>
           </Box>
 
-          <Spacer size="32" />
+          <Spacer size="96" />
 
           <Text align="center" weight="600" color="grey" size="20">
             STATUS
