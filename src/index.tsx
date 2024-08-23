@@ -1052,8 +1052,8 @@ app.image(
           <Spacer size="10" />
           
           <Box
-            paddingLeft="192"
-            paddingRight="192"
+            paddingLeft="160"
+            paddingRight="160"
           >
             <text 
               style={{
@@ -1188,8 +1188,8 @@ app.image(
           <Spacer size="10" />
           
           <Box
-            paddingLeft="192"
-            paddingRight="192"
+            paddingLeft="160"
+            paddingRight="160"
           >
             <text 
               style={{
