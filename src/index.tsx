@@ -39,28 +39,6 @@ export const app = new Frog({
   }),
 );
 
-// Function to truncate text without breaking symbols, spaces, or new lines
-const truncateText = (text: string, maxLength: number) => {
-  // Normalize new lines to spaces for consistent truncation
-  let normalizedText = text.replace(/\n/g, ' ');
-
-  // If text length exceeds maxLength, truncate and add ellipsis
-  if ([...normalizedText].length > maxLength) {
-    let truncatedText = normalizedText.slice(0, maxLength);
-
-    // Ensure we don't cut off multi-byte characters or emojis
-    while (truncatedText.length > 0 && [...truncatedText].length > maxLength) {
-      truncatedText = truncatedText.slice(0, -1);
-    }
-
-    // Trim any trailing spaces after truncation and add ellipsis
-    return truncatedText.trimEnd() + '...';
-  }
-
-  // If the text doesn't exceed maxLength, return it as is
-  return normalizedText;
-};
-
 // Function to format number
 function formatNumber(num: number) {
   if (num >= 1000) {
