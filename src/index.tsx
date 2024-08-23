@@ -17,6 +17,10 @@ import { glideConfig } from "../lib/glide.js";
 import { formatUnits, hexToBigInt } from "viem";
 import { parseFullName } from 'parse-full-name';
 
+// Uncomment this packages to tested on local server
+import { devtools } from 'frog/dev'
+import { serveStatic } from 'frog/serve-static'
+
 dotenv.config();
 
 export const app = new Frog({
@@ -71,63 +75,59 @@ app.frame("/", (c) => {
 app.image("/initial-image", (c) => {
   return c.res({
     image: (
-      <Box
-        grow
-        alignVertical="center"
-        backgroundColor="bg"
-        padding="48"
+      <Box 
+        grow 
+        flexDirection="column" 
+        gap="8"
         textAlign="left"
         height="100%"
         width="100%"
+        backgroundImage={`url(${PUBLIC_URL}/images/bg.png)`}
       >
-        <Box 
-          grow 
-          backgroundImage={`url(${PUBLIC_URL}/images/bg.png)`}
-          borderRadius="18"
-          flexDirection="column" 
-          justifyContent="flex-end" 
+        <Box flex="1" />
+        <Box
+          backgroundColor="text_bg" 
+          paddingLeft="26"
+          paddingRight="26"
+          paddingTop="48"
+          paddingBottom="32"
+          width="100%"
+          flex="1"
         >
-          <Box
-            backgroundColor="text_bg" 
-            padding="20"
-            width="100%"
-            height="256"
+          <text 
+            style={
+              {
+                border: "none",
+                color: "black",
+                fontSize: "80px",
+                fontWeight: "500",
+                width: "100%",
+                resize: "none",
+                outline: "none",
+                lineHeight: "1"
+              }
+            }
           >
-            <text 
-              style={
-                {
-                  border: "none",
-                  color: "black",
-                  fontSize: "80px",
-                  fontWeight: "500",
-                  width: "100%",
-                  resize: "none",
-                  outline: "none",
-                  lineHeight: "1"
-                }
-              }
-            >
-              Send your favorite tokens
-            </text>
+            Send your favorite tokens
+          </text>
 
-            <Spacer size="10" />
+          <Spacer size="20" />
 
-            <text 
-              style={
-                {
-                  border: "none",
-                  color: "grey",
-                  fontSize: "42px",
-                  fontWeight: "400",
-                  width: "100%",
-                  resize: "none",
-                  outline: "none",
-                }
+          <text 
+            style={
+              {
+                border: "none",
+                color: "grey",
+                fontSize: "52px",
+                fontWeight: "400",
+                width: "100%",
+                resize: "none",
+                outline: "none",
               }
-            >
-              Pay Farcasters with any token you like, and they always get ETH on Base.
-            </text>
-          </Box>
+            }
+          >
+            Pay Farcasters with any token you like, and they always get ETH on Base.
+          </text>
         </Box>
       </Box>
     ),
@@ -1227,3 +1227,7 @@ if (typeof Bun !== "undefined") {
   });
   console.log("Server is running on port 3000");
 }
+
+
+// Uncomment for local server testing
+devtools(app, { serveStatic });
