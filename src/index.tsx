@@ -18,10 +18,6 @@ import { formatUnits, hexToBigInt } from "viem";
 import { parseFullName } from 'parse-full-name';
 import truncate from "truncate-utf8-bytes";
 
-// Uncomment this packages to tested on local server
-import { devtools } from 'frog/dev'
-import { serveStatic } from 'frog/serve-static'
-
 dotenv.config();
 
 export const app = new Frog({
@@ -713,45 +709,44 @@ app.image(
             </Box>
           </Box>
 
-          <Spacer size="60" />
+          <Spacer size="80" />
           
-          <Box backgroundColor="bg" flex="1" >
-            <Box
-              backgroundColor="bg"
-              display="flex"
-              flexDirection="column"
+          <Box
+            backgroundColor="bg"
+            display="flex"
+            flexDirection="column"
+            flex="1"
+          >
+            <text 
+              style={{
+                border: "none",
+                color: "black",
+                fontSize: "80px",
+                fontWeight: "500",
+                width: "100%",
+                resize: "none",
+                outline: "none",
+                lineHeight: "0.9"
+              }}
             >
-              <text 
-                style={{
-                  border: "none",
-                  color: "black",
-                  fontSize: "80px",
-                  fontWeight: "500",
-                  width: "100%",
-                  resize: "none",
-                  outline: "none",
-                  lineHeight: "0.9"
-                }}
-              >
-                Pay {displayName}
-              </text>
+              Pay {displayName}
+            </text>
 
-              <Spacer size="10" />
-    
-              <text 
-                style={{
-                  border: "none",
-                  color: "grey",
-                  fontSize: "52px",
-                  fontWeight: "400",
-                  width: "100%",
-                  resize: "none",
-                  outline: "none",
-                }}
-              >
-                You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on{" "}{chainStr}.
-              </text>
-            </Box>
+            <Spacer size="10" />
+  
+            <text 
+              style={{
+                border: "none",
+                color: "grey",
+                fontSize: "52px",
+                fontWeight: "400",
+                width: "100%",
+                resize: "none",
+                outline: "none",
+              }}
+            >
+              You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on{" "}{chainStr}.
+            </text>
           </Box>
 
           {/* Transaction Summary Section */}
@@ -1245,7 +1240,3 @@ if (typeof Bun !== "undefined") {
   });
   console.log("Server is running on port 3000");
 }
-
-
-// Uncomment for local server testing
-devtools(app, { serveStatic });
