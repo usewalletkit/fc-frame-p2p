@@ -12,6 +12,7 @@
     "frog": "latest",
     "hono": "^4",
     "parse-full-name": "^1.2.6",
+    "truncate-utf8-bytes": "^1.0.2",
     "viem": "^2.18.8"
   },
   "devDependencies": {
@@ -19,6 +20,7 @@
     "@types/bun": "latest",
     "@types/node": "^22.5.0",
     "@types/parse-full-name": "^1.2.5",
+    "@types/truncate-utf8-bytes": "^1.0.2",
     "bun": "latest"
   }
 }

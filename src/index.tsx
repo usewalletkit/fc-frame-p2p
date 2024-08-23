@@ -16,6 +16,7 @@ import {
 import { glideConfig } from "../lib/glide.js";
 import { formatUnits, hexToBigInt } from "viem";
 import { parseFullName } from 'parse-full-name';
+import truncate from "truncate-utf8-bytes";
 
 // Uncomment this packages to tested on local server
 import { devtools } from 'frog/dev'
@@ -42,12 +43,26 @@ export const app = new Frog({
   }),
 );
 
-// Function to truncate text
+// Function to truncate text without breaking symbols, spaces, or new lines
 const truncateText = (text: string, maxLength: number) => {
-  if (text.length > maxLength) {
-    return text.slice(0, maxLength) + '...';
+  // Normalize new lines to spaces for consistent truncation
+  let normalizedText = text.replace(/\n/g, ' ');
+
+  // If text length exceeds maxLength, truncate and add ellipsis
+  if ([...normalizedText].length > maxLength) {
+    let truncatedText = normalizedText.slice(0, maxLength);
+
+    // Ensure we don't cut off multi-byte characters or emojis
+    while (truncatedText.length > 0 && [...truncatedText].length > maxLength) {
+      truncatedText = truncatedText.slice(0, -1);
+    }
+
+    // Trim any trailing spaces after truncation and add ellipsis
+    return truncatedText.trimEnd() + '...';
   }
-  return text;
+
+  // If the text doesn't exceed maxLength, return it as is
+  return normalizedText;
 };
 
 // Function to format number
@@ -235,18 +250,20 @@ app.image("/review-image/:toFid", async (c) => {
       "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0",
     },
     image: (
-      <Box
-        grow
-        alignVertical="center"
-        backgroundColor="bg"
-        padding="48"
+      <Box 
+        grow 
+        backgroundColor="bg" 
+        flexDirection="column" 
+        gap="8"
+        paddingTop="48"
+        paddingLeft="28"
+        paddingRight="28"
         textAlign="left"
         height="100%"
         width="100%"
       >
-        <Box grow flexDirection="column" padding="20" gap="8" alignItems="center">
-          
-          {/* Text and Image Section */}
+
+        <Box backgroundColor="bg" flex="1" >
           <Box
             grow
             backgroundColor="bg"
@@ -285,7 +302,7 @@ app.image("/review-image/:toFid", async (c) => {
               <Spacer size="6" />
   
               <Text align="left" weight="400" color="black" size="24">
-                {truncateText(bio, 25)}
+                {truncate(bio, 60) + (Buffer.byteLength(bio, 'utf8') > 60 ? '...' : '')}
               </Text>
               <Spacer size="10" />
   
@@ -304,10 +321,11 @@ app.image("/review-image/:toFid", async (c) => {
               </Box>
             </Box>
           </Box>
+        </Box>
 
-          <Spacer size="60" />
-  
-          {/* Additional Section */}
+        <Spacer size="60" />
+        
+        <Box backgroundColor="bg" flex="1" >
           <Box
             backgroundColor="bg"
             display="flex"
@@ -334,7 +352,7 @@ app.image("/review-image/:toFid", async (c) => {
               style={{
                 border: "none",
                 color: "grey",
-                fontSize: "42px",
+                fontSize: "52px",
                 fontWeight: "400",
                 width: "100%",
                 resize: "none",
@@ -346,32 +364,34 @@ app.image("/review-image/:toFid", async (c) => {
           </Box>
         </Box>
 
+        <Box backgroundColor="bg" flex="1" > 
         <Box
-          borderRadius="14"
-          padding="14"
-          background="blue"
-          height="128"
-          width="100%"
-          justifyContent="center"
-        >
-          <Box flexDirection="row" alignItems="center" display="flex">
-            <box style={{ transform: "rotate(-68.01deg)" }}>
-              <Icon name="undo" color="white" size="60" />
-            </box>
-            <Spacer size="10" />
-            <text 
-              style={{
-                border: "none",
-                color: "white",
-                fontSize: "42px",
-                fontWeight: "500",
-                width: "100%",
-                resize: "none",
-                outline: "none",
-              }}
-            >
-              Enter the amount and token you want to send
-            </text>
+            borderRadius="14"
+            padding="14"
+            background="blue"
+            height="128"
+            width="100%"
+            justifyContent="center"
+          >
+            <Box flexDirection="row" alignItems="center" display="flex">
+              <box style={{ transform: "rotate(-68.01deg)" }}>
+                <Icon name="undo" color="white" size="60" />
+              </box>
+              <Spacer size="10" />
+              <text 
+                style={{
+                  border: "none",
+                  color: "white",
+                  fontSize: "42px",
+                  fontWeight: "500",
+                  width: "100%",
+                  resize: "none",
+                  outline: "none",
+                }}
+              >
+                Enter the amount and token you want to send
+              </text>
+            </Box>
           </Box>
         </Box>
       </Box>
