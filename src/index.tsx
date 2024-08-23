@@ -556,7 +556,7 @@ app.image(
         break;
       case "Base":
         paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/base.png`;
+          `${PUBLIC_URL}/chains/base/icon.png`;
         switch (paymentCurrencyUpperCase) {
           case "USDC":
             paymentCurrencyLogoUrl =
