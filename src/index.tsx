@@ -462,7 +462,7 @@ app.frame("/send/:toFid", async (c) => {
         });
       } else {
         return c.error({
-          message: "An unexpected error occurred. Please try again.",
+          message: "Enter the token amount followed by the token symbol",
         });
       }
     }
