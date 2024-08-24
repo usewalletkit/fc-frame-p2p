@@ -547,11 +547,11 @@ app.image(
         switch (paymentCurrencyUpperCase) {
           case "USDC":
             paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=032";
+              `${PUBLIC_URL}/chains/ethereum/tokens/usdc_eth.png`;
             break;
           case "USDT":
             paymentCurrencyLogoUrl =
-              "https://cryptologos.cc/logos/tether-usdt-logo.png?v=032";
+              `${PUBLIC_URL}/chains/ethereum/tokens/usdt_eth.png`;
             break;
         }
         break;
@@ -559,9 +559,17 @@ app.image(
         paymentCurrencyLogoUrl =
           `${PUBLIC_URL}/chains/base/icon.png`;
         switch (paymentCurrencyUpperCase) {
+          case "ETH":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/base/tokens/eth_base.png`;
+            break;
           case "USDC":
             paymentCurrencyLogoUrl =
               `${PUBLIC_URL}/chains/base/tokens/usdc_base.png`;
+            break;
+          case "DEGEN":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/base/tokens/degen_base.png`;
             break;
         }
         break;
@@ -569,13 +577,17 @@ app.image(
         paymentCurrencyLogoUrl =
           `${PUBLIC_URL}/chains/optimism/icon.png`;
         switch (paymentCurrencyUpperCase) {
+          case "ETH":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/optimism/tokens/eth_op.png`;
+            break;
           case "USDC":
             paymentCurrencyLogoUrl =
               `${PUBLIC_URL}/chains/optimism/tokens/usdc_op.png`;
             break;
-          case "ETH":
+          case "USDT":
             paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/optimism/tokens/eth_op.png`;
+              `${PUBLIC_URL}/chains/optimism/tokens/usdt_op.png`;
             break;
         }
         break;
@@ -596,6 +608,12 @@ app.image(
       case "Polygon":
         paymentCurrencyLogoUrl =
           `${PUBLIC_URL}/chains/polygon/icon.png`;
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/polygon/tokens/usdc_polygon.png`;
+            break;
+        }
         break;
       case "Degen":
         paymentCurrencyLogoUrl =
@@ -608,6 +626,12 @@ app.image(
       case "Avax":
         paymentCurrencyLogoUrl =
           `${PUBLIC_URL}/chains/avax/icon.png`;
+        switch (paymentCurrencyUpperCase) {
+          case "USDC":
+            paymentCurrencyLogoUrl =
+              `${PUBLIC_URL}/chains/polygon/tokens/usdc_avax.png`;
+            break;
+        }
         break;
       case "Blast":
         paymentCurrencyLogoUrl =
