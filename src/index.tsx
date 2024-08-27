@@ -15,7 +15,7 @@ import {
 } from "@paywithglide/glide-js";
 import { glideConfig } from "../lib/glide.js";
 import { formatUnits, hexToBigInt } from "viem";
-import { parseFullName } from 'parse-full-name';
+import { parseFullName } from "parse-full-name";
 import truncate from "truncate-utf8-bytes";
 
 dotenv.config();
@@ -45,17 +45,16 @@ function formatNumber(num: number) {
     return (num / 1000).toFixed(1) + "K";
   }
   return num.toString();
-};
+}
 
 // URL for the public server
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:5173";
-
 
 app.frame("/", (c) => {
   return c.res({
     image: "/initial-image",
     intents: [
-      <TextInput placeholder="dwr.eth or 0xc69...c758" />,
+      <TextInput placeholder="Who's it going to? ex. dwr.eth" />,
       <Button action="/review"> Continue </Button>,
     ],
   });
@@ -64,9 +63,9 @@ app.frame("/", (c) => {
 app.image("/initial-image", (c) => {
   return c.res({
     image: (
-      <Box 
-        grow 
-        flexDirection="column" 
+      <Box
+        grow
+        flexDirection="column"
         gap="8"
         textAlign="left"
         height="100%"
@@ -75,7 +74,7 @@ app.image("/initial-image", (c) => {
       >
         <Box flex="1" />
         <Box
-          backgroundColor="text_bg" 
+          backgroundColor="text_bg"
           paddingLeft="26"
           paddingRight="26"
           paddingTop="48"
@@ -83,39 +82,36 @@ app.image("/initial-image", (c) => {
           width="100%"
           flex="1"
         >
-          <text 
-            style={
-              {
-                border: "none",
-                color: "black",
-                fontSize: "80px",
-                fontWeight: "500",
-                width: "100%",
-                resize: "none",
-                outline: "none",
-                lineHeight: "1"
-              }
-            }
+          <text
+            style={{
+              border: "none",
+              color: "black",
+              fontSize: "80px",
+              fontWeight: "500",
+              width: "100%",
+              resize: "none",
+              outline: "none",
+              lineHeight: "1",
+            }}
           >
             Send your favorite tokens
           </text>
 
           <Spacer size="20" />
 
-          <text 
-            style={
-              {
-                border: "none",
-                color: "grey",
-                fontSize: "52px",
-                fontWeight: "400",
-                width: "100%",
-                resize: "none",
-                outline: "none",
-              }
-            }
+          <text
+            style={{
+              border: "none",
+              color: "grey",
+              fontSize: "52px",
+              fontWeight: "400",
+              width: "100%",
+              resize: "none",
+              outline: "none",
+            }}
           >
-            Pay Farcasters with any token you like, and they always get ETH on Base.
+            Pay Farcasters with any token you like, and they always get ETH on
+            Base.
           </text>
         </Box>
       </Box>
@@ -191,7 +187,7 @@ app.frame("/review", async (c) => {
     return c.res({
       image: `/review-image/${toFid}`,
       intents: [
-        <TextInput placeholder="0.1 eth on base or 5 usdc" />,
+        <TextInput placeholder="Ex. 0.1 eth on zora or 100 meow" />,
         <Button action={`/send/${toFid}`}> Review </Button>,
       ],
     });
@@ -221,13 +217,14 @@ app.image("/review-image/:toFid", async (c) => {
 
   return c.res({
     headers: {
-      "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0",
+      "cache-control":
+        "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0",
     },
     image: (
-      <Box 
-        grow 
-        backgroundColor="bg" 
-        flexDirection="column" 
+      <Box
+        grow
+        backgroundColor="bg"
+        flexDirection="column"
         gap="8"
         paddingTop="48"
         paddingLeft="28"
@@ -236,8 +233,7 @@ app.image("/review-image/:toFid", async (c) => {
         height="100%"
         width="100%"
       >
-
-        <Box backgroundColor="bg" flex="1" >
+        <Box backgroundColor="bg" flex="1">
           <Box
             grow
             backgroundColor="bg"
@@ -263,7 +259,7 @@ app.image("/review-image/:toFid", async (c) => {
               }}
             />
             <Spacer size="24" />
-            
+
             {/* Text Container */}
             <Box
               display="flex"
@@ -275,17 +271,14 @@ app.image("/review-image/:toFid", async (c) => {
                 @{username}
               </Text>
               <Spacer size="6" />
-  
+
               <Text align="left" weight="400" color="black" size="24">
-                {truncate(bio, 60) + (Buffer.byteLength(bio, 'utf8') > 60 ? '...' : '')}
+                {truncate(bio, 60) +
+                  (Buffer.byteLength(bio, "utf8") > 60 ? "..." : "")}
               </Text>
               <Spacer size="10" />
-  
-              <Box
-                display="flex"
-                flexDirection="row"
-                alignItems="center"
-              >
+
+              <Box display="flex" flexDirection="row" alignItems="center">
                 <Text align="left" weight="500" color="black" size="24">
                   {formatNumber(followers)}
                 </Text>
@@ -299,14 +292,10 @@ app.image("/review-image/:toFid", async (c) => {
         </Box>
 
         <Spacer size="60" />
-        
-        <Box backgroundColor="bg" flex="1" >
-          <Box
-            backgroundColor="bg"
-            display="flex"
-            flexDirection="column"
-          >
-            <text 
+
+        <Box backgroundColor="bg" flex="1">
+          <Box backgroundColor="bg" display="flex" flexDirection="column">
+            <text
               style={{
                 border: "none",
                 color: "black",
@@ -315,15 +304,15 @@ app.image("/review-image/:toFid", async (c) => {
                 width: "100%",
                 resize: "none",
                 outline: "none",
-                lineHeight: "0.9"
+                lineHeight: "0.9",
               }}
             >
               Pay {displayName}
             </text>
 
             <Spacer size="10" />
-  
-            <text 
+
+            <text
               style={{
                 border: "none",
                 color: "grey",
@@ -339,8 +328,8 @@ app.image("/review-image/:toFid", async (c) => {
           </Box>
         </Box>
 
-        <Box backgroundColor="bg" flex="1" > 
-        <Box
+        <Box backgroundColor="bg" flex="1">
+          <Box
             borderRadius="14"
             padding="14"
             background="blue"
@@ -353,7 +342,7 @@ app.image("/review-image/:toFid", async (c) => {
                 <Icon name="undo" color="white" size="60" />
               </box>
               <Spacer size="10" />
-              <text 
+              <text
                 style={{
                   border: "none",
                   color: "white",
@@ -542,105 +531,83 @@ app.image(
     let paymentCurrencyLogoUrl;
     switch (chainStr) {
       case "Ethereum":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/ethereum/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/ethereum/icon.png`;
         switch (paymentCurrencyUpperCase) {
           case "USDC":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/ethereum/tokens/usdc_eth.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/ethereum/tokens/usdc_eth.png`;
             break;
           case "USDT":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/ethereum/tokens/usdt_eth.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/ethereum/tokens/usdt_eth.png`;
             break;
         }
         break;
       case "Base":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/base/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/base/icon.png`;
         switch (paymentCurrencyUpperCase) {
           case "ETH":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/base/tokens/eth_base.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/base/tokens/eth_base.png`;
             break;
           case "USDC":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/base/tokens/usdc_base.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/base/tokens/usdc_base.png`;
             break;
           case "DEGEN":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/base/tokens/degen_base.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/base/tokens/degen_base.png`;
             break;
         }
         break;
       case "Optimism":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/optimism/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/optimism/icon.png`;
         switch (paymentCurrencyUpperCase) {
           case "ETH":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/optimism/tokens/eth_op.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/optimism/tokens/eth_op.png`;
             break;
           case "USDC":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/optimism/tokens/usdc_op.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/optimism/tokens/usdc_op.png`;
             break;
           case "USDT":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/optimism/tokens/usdt_op.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/optimism/tokens/usdt_op.png`;
             break;
         }
         break;
       case "Arbitrum":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/arbitrum/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/arbitrum/icon.png`;
         switch (paymentCurrencyUpperCase) {
           case "USDC":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/arbitrum/tokens/usdc_arb.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/arbitrum/tokens/usdc_arb.png`;
             break;
           case "ETH":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/arbitrum/tokens/eth_arb.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/arbitrum/tokens/eth_arb.png`;
             break;
         }
         break;
       case "Polygon":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/polygon/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/polygon/icon.png`;
         switch (paymentCurrencyUpperCase) {
           case "USDC":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/polygon/tokens/usdc_polygon.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/polygon/tokens/usdc_polygon.png`;
             break;
         }
         break;
       case "Degen":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/degen/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/degen/icon.png`;
         break;
       case "Zora":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/zora/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/zora/icon.png`;
         break;
       case "Avax":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/avax/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/avax/icon.png`;
         switch (paymentCurrencyUpperCase) {
           case "USDC":
-            paymentCurrencyLogoUrl =
-              `${PUBLIC_URL}/chains/polygon/tokens/usdc_avax.png`;
+            paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/polygon/tokens/usdc_avax.png`;
             break;
         }
         break;
       case "Blast":
-        paymentCurrencyLogoUrl =
-          `${PUBLIC_URL}/chains/blast/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/blast/icon.png`;
         break;
       // Add other currencies as needed
       default:
-        paymentCurrencyLogoUrl =
-        `${PUBLIC_URL}/chains/base/icon.png`;
+        paymentCurrencyLogoUrl = `${PUBLIC_URL}/chains/base/icon.png`;
         break;
     }
 
@@ -664,10 +631,10 @@ app.image(
           "no-store, no-cache, must-revalidate, proxy-revalidate max-age=0, s-maxage=0",
       },
       image: (
-        <Box 
-          grow 
-          backgroundColor="bg" 
-          flexDirection="column" 
+        <Box
+          grow
+          backgroundColor="bg"
+          flexDirection="column"
           gap="8"
           paddingTop="48"
           paddingLeft="28"
@@ -677,8 +644,7 @@ app.image(
           height="100%"
           width="100%"
         >
-
-          <Box backgroundColor="bg" flex="1" >
+          <Box backgroundColor="bg" flex="1">
             <Box
               grow
               backgroundColor="bg"
@@ -704,7 +670,7 @@ app.image(
                 }}
               />
               <Spacer size="24" />
-              
+
               {/* Text Container */}
               <Box
                 display="flex"
@@ -716,17 +682,14 @@ app.image(
                   @{username}
                 </Text>
                 <Spacer size="6" />
-    
+
                 <Text align="left" weight="400" color="black" size="24">
-                  {truncate(bio, 60) + (Buffer.byteLength(bio, 'utf8') > 60 ? '...' : '')}
+                  {truncate(bio, 60) +
+                    (Buffer.byteLength(bio, "utf8") > 60 ? "..." : "")}
                 </Text>
                 <Spacer size="10" />
-    
-                <Box
-                  display="flex"
-                  flexDirection="row"
-                  alignItems="center"
-                >
+
+                <Box display="flex" flexDirection="row" alignItems="center">
                   <Text align="left" weight="500" color="black" size="24">
                     {formatNumber(followers)}
                   </Text>
@@ -740,14 +703,14 @@ app.image(
           </Box>
 
           <Spacer size="80" />
-          
+
           <Box
             backgroundColor="bg"
             display="flex"
             flexDirection="column"
             flex="1"
           >
-            <text 
+            <text
               style={{
                 border: "none",
                 color: "black",
@@ -756,15 +719,15 @@ app.image(
                 width: "100%",
                 resize: "none",
                 outline: "none",
-                lineHeight: "0.9"
+                lineHeight: "0.9",
               }}
             >
               Pay {displayName}
             </text>
 
             <Spacer size="10" />
-  
-            <text 
+
+            <text
               style={{
                 border: "none",
                 color: "grey",
@@ -775,7 +738,8 @@ app.image(
                 outline: "none",
               }}
             >
-              You are sending {displayPaymentAmount} {paymentCurrencyUpperCase} on{" "}{chainStr}.
+              You are sending {displayPaymentAmount} {paymentCurrencyUpperCase}{" "}
+              on {chainStr}.
             </text>
           </Box>
 
@@ -787,8 +751,8 @@ app.image(
             justifyContent="space-between"
           >
             {/* You Send Section */}
-            <Box 
-              backgroundColor="bg" 
+            <Box
+              backgroundColor="bg"
               flex="2"
               alignHorizontal="left"
               padding="0"
@@ -796,9 +760,9 @@ app.image(
               <Text align="right" weight="600" color="grey" size="20">
                 YOU SEND
               </Text>
-    
+
               <Spacer size="8" />
-  
+
               <Box flexDirection="row">
                 <Image
                   width="28"
@@ -807,7 +771,7 @@ app.image(
                   src={paymentCurrencyLogoUrl}
                 />
                 <Spacer size="8" />
-                <text 
+                <text
                   style={{
                     border: "none",
                     color: "black",
@@ -822,7 +786,7 @@ app.image(
                 </text>
               </Box>
             </Box>
-      
+
             {/* Arrow Icon */}
             <Box
               backgroundColor="bg"
@@ -833,13 +797,9 @@ app.image(
             >
               <Icon name="move-right" color="grey" size="60" />
             </Box>
-      
+
             {/* They Receive Section */}
-            <Box
-              backgroundColor="bg"
-              flex="2"
-              alignHorizontal="right"
-            >
+            <Box backgroundColor="bg" flex="2" alignHorizontal="right">
               <Text align="right" weight="600" color="grey" size="20">
                 THEY RECEIVE
               </Text>
@@ -852,7 +812,7 @@ app.image(
                   src={`${PUBLIC_URL}/chains/base/tokens/eth_base.png`}
                 />
                 <Spacer size="8" />
-                <text 
+                <text
                   style={{
                     border: "none",
                     color: "black",
@@ -867,7 +827,7 @@ app.image(
             </Box>
           </Box>
         </Box>
-      ),    
+      ),
     });
   },
 );
@@ -911,12 +871,8 @@ app.frame(
   async (c) => {
     const { transactionId, buttonValue } = c;
 
-    const {
-      sessionId,
-      fromFid,
-      toFid,
-      displayReceivedEthValue,
-    } = c.req.param();
+    const { sessionId, fromFid, toFid, displayReceivedEthValue } =
+      c.req.param();
 
     // The payment transaction hash is passed with transactionId if the user just completed the payment. If the user hit the "Refresh" button, the transaction hash is passed with buttonValue.
     const txHash = transactionId || buttonValue;
@@ -989,15 +945,10 @@ app.frame(
   },
 );
 
-
 app.image(
   "/tx-processing/:fromFid/:toFid/:displayReceivedEthValue",
   async (c) => {
-    const {
-      fromFid,
-      toFid,
-      displayReceivedEthValue,
-    } = c.req.param();
+    const { fromFid, toFid, displayReceivedEthValue } = c.req.param();
 
     const [fromUser, toUser] = await Promise.all([
       fetchUserData(fromFid),
@@ -1021,7 +972,6 @@ app.image(
           height="100%"
           width="100%"
         >
-
           <Box
             grow
             backgroundColor="green"
@@ -1066,7 +1016,7 @@ app.image(
             </Box>
           </Box>
 
-          <text 
+          <text
             style={{
               color: "black",
               fontSize: "80px",
@@ -1078,12 +1028,9 @@ app.image(
           </text>
 
           <Spacer size="10" />
-          
-          <Box
-            paddingLeft="160"
-            paddingRight="160"
-          >
-            <text 
+
+          <Box paddingLeft="160" paddingRight="160">
+            <text
               style={{
                 color: "grey",
                 fontSize: "42px",
@@ -1091,7 +1038,8 @@ app.image(
                 textAlign: "center",
               }}
             >
-              {toDisplayName} will receive {displayReceivedEthValue} ETH on Base.
+              {toDisplayName} will receive {displayReceivedEthValue} ETH on
+              Base.
             </text>
           </Box>
 
@@ -1110,7 +1058,7 @@ app.image(
           >
             <Icon name="clock" color="process" size="30" />
             <Spacer size="6" />
-            <text 
+            <text
               style={{
                 color: "black",
                 fontSize: "42px",
@@ -1127,144 +1075,131 @@ app.image(
   },
 );
 
+app.image("/tx-success/:fromFid/:toFid/:displayReceivedEthValue", async (c) => {
+  const { fromFid, toFid, displayReceivedEthValue } = c.req.param();
 
-app.image(
-  "/tx-success/:fromFid/:toFid/:displayReceivedEthValue",
-  async (c) => {
-    const {
-      fromFid,
-      toFid,
-      displayReceivedEthValue,
-    } = c.req.param();
+  const [fromUser, toUser] = await Promise.all([
+    fetchUserData(fromFid),
+    fetchUserData(toFid),
+  ]);
 
-    const [fromUser, toUser] = await Promise.all([
-      fetchUserData(fromFid),
-      fetchUserData(toFid),
-    ]);
+  const fromPfpUrl = fromUser.pfp_url;
+  const toPfpUrl = toUser.pfp_url;
 
-    const fromPfpUrl = fromUser.pfp_url;
-    const toPfpUrl = toUser.pfp_url;
+  const parsedName = parseFullName(toUser.display_name);
+  const toDisplayName = parsedName.first || toUser.display_name;
 
-    const parsedName = parseFullName(toUser.display_name);
-    const toDisplayName = parsedName.first || toUser.display_name;
-
-    return c.res({
-      image: (
+  return c.res({
+    image: (
+      <Box
+        grow
+        alignHorizontal="center"
+        backgroundColor="bg"
+        paddingBottom="48"
+        textAlign="center"
+        height="100%"
+        width="100%"
+      >
         <Box
           grow
+          backgroundColor="green"
+          position="relative"
+          display="flex"
+          justifyContent="center"
           alignHorizontal="center"
-          backgroundColor="bg"
-          paddingBottom="48"
-          textAlign="center"
-          height="100%"
-          width="100%"
+          marginLeft="10"
         >
-
           <Box
-            grow
-            backgroundColor="green"
-            position="relative"
+            position="absolute"
             display="flex"
             justifyContent="center"
-            alignHorizontal="center"
-            marginLeft="10"
+            backgroundColor="green"
+            marginTop="160"
           >
-            <Box
-              position="absolute"
-              display="flex"
-              justifyContent="center"
-              backgroundColor="green"
-              marginTop="160"
-            >
-              <img
-                height="256"
-                width="256"
-                src={fromPfpUrl}
-                style={{
-                  border: "2px solid #DDDDDD",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  position: "absolute",
-                  right: 0,
-                }}
-              />
+            <img
+              height="256"
+              width="256"
+              src={fromPfpUrl}
+              style={{
+                border: "2px solid #DDDDDD",
+                borderRadius: "50%",
+                objectFit: "cover",
+                position: "absolute",
+                right: 0,
+              }}
+            />
 
-              <img
-                height="256"
-                width="256"
-                src={toPfpUrl}
-                style={{
-                  border: "2px solid #DDDDDD",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  position: "absolute",
-                  left: "-30px",
-                }}
-              />
-            </Box>
+            <img
+              height="256"
+              width="256"
+              src={toPfpUrl}
+              style={{
+                border: "2px solid #DDDDDD",
+                borderRadius: "50%",
+                objectFit: "cover",
+                position: "absolute",
+                left: "-30px",
+              }}
+            />
           </Box>
+        </Box>
 
-          <text 
+        <text
+          style={{
+            color: "black",
+            fontSize: "80px",
+            fontWeight: "500",
+            textAlign: "center",
+          }}
+        >
+          Sent!
+        </text>
+
+        <Spacer size="10" />
+
+        <Box paddingLeft="160" paddingRight="160">
+          <text
+            style={{
+              color: "grey",
+              fontSize: "42px",
+              fontWeight: "400",
+              textAlign: "center",
+            }}
+          >
+            {toDisplayName} will receive {displayReceivedEthValue} ETH on Base.
+          </text>
+        </Box>
+
+        <Spacer size="96" />
+
+        <Text align="center" weight="600" color="grey" size="20">
+          STATUS
+        </Text>
+
+        <Spacer size="10" />
+
+        <Box
+          flexDirection="row"
+          alignItems="flex-start"
+          justifyContent="center"
+        >
+          <Icon name="circle-check" color="green" size="30" />
+          <Spacer size="6" />
+          <text
             style={{
               color: "black",
-              fontSize: "80px",
+              fontSize: "42px",
               fontWeight: "500",
               textAlign: "center",
             }}
           >
-            Sent!
+            Success
           </text>
-
-          <Spacer size="10" />
-          
-          <Box
-            paddingLeft="160"
-            paddingRight="160"
-          >
-            <text 
-              style={{
-                color: "grey",
-                fontSize: "42px",
-                fontWeight: "400",
-                textAlign: "center",
-              }}
-            >
-              {toDisplayName} will receive {displayReceivedEthValue} ETH on Base.
-            </text>
-          </Box>
-
-          <Spacer size="96" />
-
-          <Text align="center" weight="600" color="grey" size="20">
-            STATUS
-          </Text>
-
-          <Spacer size="10" />
-
-          <Box
-            flexDirection="row"
-            alignItems="flex-start"
-            justifyContent="center"
-          >
-            <Icon name="circle-check" color="green" size="30" />
-            <Spacer size="6" />
-            <text 
-              style={{
-                color: "black",
-                fontSize: "42px",
-                fontWeight: "500",
-                textAlign: "center",
-              }}
-            >
-              Success
-            </text>
-          </Box>
         </Box>
-      ),
-    });
-  },
-);
-
+      </Box>
+    ),
+  });
+});
 
 if (typeof Bun !== "undefined") {
   app.use("/*", (await import("hono/bun")).serveStatic({ root: "./public" }));
