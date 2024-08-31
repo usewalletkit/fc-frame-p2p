@@ -22,7 +22,7 @@ dotenv.config();
 
 export const app = new Frog({
   ui: { vars },
-  title: "Pay with Glide - send tokens to anyone from any chain",
+  title: "Glide - Pay friends with any token",
   imageAspectRatio: "1:1",
   imageOptions: {
     height: 1024,
@@ -49,7 +49,7 @@ function formatNumber(num: number) {
 
 const sanitizeString = (input: string) => {
   // Remove any non-ASCII characters
-  return input.replace(/[^\x00-\x7F]/g, '');
+  return input.replace(/[^\x00-\x7F]/g, "");
 };
 
 const capitalize = (name: string) => {
@@ -209,15 +209,19 @@ app.frame("/review", async (c) => {
 });
 
 app.castAction(
-  '/pay-user',
+  "/pay-user",
   (c) => {
     const { actionData } = c;
     const toFid = actionData.fid;
-    
-    return c.frame({ path: `/review-action/${toFid}`})
+
+    return c.frame({ path: `/review-action/${toFid}` });
   },
-  { name: "Pay with Glide", icon: "credit-card", description: "Send tokens to anyone from any chain" }
-)
+  {
+    name: "Glide",
+    icon: "zap",
+    description: "Pay friends with any token",
+  },
+);
 
 app.frame("/review-action/:toFid", async (c) => {
   const { toFid } = c.req.param();
@@ -240,7 +244,9 @@ app.image("/review-image/:toFid", async (c) => {
 
   const parsedName = parseFullName(user.display_name);
 
-  const displayName = capitalize(sanitizeString(parsedName.first || user.display_name));
+  const displayName = capitalize(
+    sanitizeString(parsedName.first || user.display_name),
+  );
 
   const username = user.username;
 
@@ -650,7 +656,9 @@ app.image(
 
     const parsedName = parseFullName(user.display_name);
 
-    const displayName = capitalize(sanitizeString(parsedName.first || user.display_name));
+    const displayName = capitalize(
+      sanitizeString(parsedName.first || user.display_name),
+    );
 
     const username = user.username;
 
@@ -992,7 +1000,9 @@ app.image(
     const toPfpUrl = toUser.pfp_url;
 
     const parsedName = parseFullName(toUser.display_name);
-    const toDisplayName = capitalize(sanitizeString(parsedName.first || toUser.display_name));
+    const toDisplayName = capitalize(
+      sanitizeString(parsedName.first || toUser.display_name),
+    );
 
     return c.res({
       image: (
@@ -1120,7 +1130,9 @@ app.image("/tx-success/:fromFid/:toFid/:displayReceivedEthValue", async (c) => {
   const toPfpUrl = toUser.pfp_url;
 
   const parsedName = parseFullName(toUser.display_name);
-  const toDisplayName = capitalize(sanitizeString(parsedName.first || toUser.display_name));
+  const toDisplayName = capitalize(
+    sanitizeString(parsedName.first || toUser.display_name),
+  );
 
   return c.res({
     image: (
