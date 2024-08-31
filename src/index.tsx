@@ -969,7 +969,7 @@ app.image(
     const toPfpUrl = toUser.pfp_url;
 
     const parsedName = parseFullName(toUser.display_name);
-    const toDisplayName = parsedName.first || toUser.display_name;
+    const toDisplayName = capitalize(sanitizeString(parsedName.first || toUser.display_name));
 
     return c.res({
       image: (
@@ -1097,7 +1097,7 @@ app.image("/tx-success/:fromFid/:toFid/:displayReceivedEthValue", async (c) => {
   const toPfpUrl = toUser.pfp_url;
 
   const parsedName = parseFullName(toUser.display_name);
-  const toDisplayName = parsedName.first || toUser.display_name;
+  const toDisplayName = capitalize(sanitizeString(parsedName.first || toUser.display_name));
 
   return c.res({
     image: (
