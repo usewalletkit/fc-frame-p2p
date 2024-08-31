@@ -47,6 +47,16 @@ function formatNumber(num: number) {
   return num.toString();
 }
 
+const sanitizeString = (input: string) => {
+  // Remove any non-ASCII characters
+  return input.replace(/[^\x00-\x7F]/g, '');
+};
+
+const capitalize = (name: string) => {
+  if (name.length === 0) return name; // Handle empty string case
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};
+
 // URL for the public server
 const PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:5173";
 
@@ -207,7 +217,7 @@ app.image("/review-image/:toFid", async (c) => {
 
   const parsedName = parseFullName(user.display_name);
 
-  const displayName = parsedName.first || user.display_name;
+  const displayName = capitalize(sanitizeString(parsedName.first || user.display_name));
 
   const username = user.username;
 
@@ -617,7 +627,7 @@ app.image(
 
     const parsedName = parseFullName(user.display_name);
 
-    const displayName = parsedName.first || user.display_name;
+    const displayName = capitalize(sanitizeString(parsedName.first || user.display_name));
 
     const username = user.username;
 
