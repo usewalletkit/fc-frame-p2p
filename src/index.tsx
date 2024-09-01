@@ -208,6 +208,29 @@ app.frame("/review", async (c) => {
   }
 });
 
+app.castAction(
+  '/action',
+  (c) => {
+    const { actionData } = c;
+    const toFid = actionData.fid;
+    
+    return c.frame({ path: `/review-action/${toFid}`})
+  },
+  { name: "Pay with Glide", icon: "credit-card", description: "Send tokens to anyone from any chain" }
+)
+
+app.frame("/review-action/:toFid", async (c) => {
+  const { toFid } = c.req.param();
+
+  return c.res({
+    image: `/review-image/${toFid}`,
+    intents: [
+      <TextInput placeholder="Ex. 0.1 eth on zora or 100 meow" />,
+      <Button action={`/send/${toFid}`}> Review </Button>,
+    ],
+  });
+});
+
 app.image("/review-image/:toFid", async (c) => {
   const { toFid } = c.req.param();
 
