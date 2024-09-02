@@ -209,7 +209,7 @@ app.frame("/review", async (c) => {
 });
 
 app.castAction(
-  '/action',
+  '/pay-user',
   (c) => {
     const { actionData } = c;
     const toFid = actionData.fid;
