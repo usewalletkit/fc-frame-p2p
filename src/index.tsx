@@ -212,7 +212,7 @@ app.castAction(
   "/pay-user",
   (c) => {
     const { actionData } = c;
-    const toFid = actionData.fid;
+    const toFid = actionData.castId.fid;
 
     return c.frame({ path: `/review-action/${toFid}` });
   },
